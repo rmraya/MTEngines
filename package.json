@@ -1,0 +1,28 @@
+{
+  "name": "mtengines",
+  "productName": "MTEngines",
+  "version": "1.0.0",
+  "description": "Machine Translation (MT) library written in TypeScript",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": {
+    "name": "Rodolfo M. Raya",
+    "url": "https://maxprograms.com",
+    "email": "rmraya@maxprograms.com"
+  },
+  "license": "EPL-1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rmraya/MTEngines.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "typescript": "^5.1.3"
+  }
+}
