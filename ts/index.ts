@@ -15,3 +15,4 @@ export { AzureTranslator } from './AzureTranslator';
 export { ChatGPTTranslator } from './ChatGPTTranslator';
 export { DeepLTranslator } from './DeepLTranslator';
 export { GoogleTranslator } from './GoogleTranslator';
+export { YandexTranslator } from './YandexTranslator';
