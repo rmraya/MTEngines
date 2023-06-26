@@ -13,7 +13,7 @@ Machine Translation engines library written in TypeScript
 ## Example
 
 ```typescript
-    import { GoogleTranslator } from "mtengines";
+import { GoogleTranslator } from "mtengines";
 
 class TestGoogle {
 

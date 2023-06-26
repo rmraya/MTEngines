@@ -81,15 +81,6 @@ export class YandexTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        /*
-        https://translate.yandex.net/api/v1.5/tr.json/translate
-         ? [key=<API key>]
-         & [text=<text to translate>]
-         & [lang=<translation direction>]
-         & [format=<text format>]
-         & [options=<translation options>]
-         & [callback=<callback function name>]
-        */
         let url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + this.apiKey + '&text=' + encodeURIComponent(source) + "&lang=" + this.srcLang + "-" + this.tgtLang;
         return new Promise((resolve, reject) => {
             fetch(url, {
