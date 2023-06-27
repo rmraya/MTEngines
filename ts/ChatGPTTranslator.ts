@@ -74,7 +74,7 @@ export class ChatGPTTranslator implements MTEngine {
         };
         let data: string = JSON.stringify(params);
 
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             fetch('https://api.openai.com/v1/completions', {
                 method: 'POST',
                 headers: [

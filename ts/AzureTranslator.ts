@@ -60,7 +60,7 @@ export class AzureTranslator implements MTEngine {
             "Text": source
         }];
         let data: string = JSON.stringify(params);
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'POST',
                 headers: [
@@ -87,7 +87,7 @@ export class AzureTranslator implements MTEngine {
     }
 
     getLanguages(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             fetch('https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation'
             ).then((response: Response) => {
                 if (response.ok) {

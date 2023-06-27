@@ -59,7 +59,7 @@ export class DeepLTranslator implements MTEngine {
     translate(source: string): Promise<string> {
         let url: string = this.proPlan ? 'https://api.deepl.com/v1/translate' : 'https://api-free.deepl.com/v2/translate';
         let params: string = "&text=" + encodeURIComponent(source) + "&source_lang=" + this.srcLang.toUpperCase() + "&target_lang=" + this.tgtLang.toUpperCase();
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'POST',
                 headers: [
@@ -87,7 +87,7 @@ export class DeepLTranslator implements MTEngine {
     }
 
     getLanguages(type: string): Promise<string[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             let url = this.proPlan ? 'https://api.deepl.com/v2/languages?type=' : 'https://api-free.deepl.com/v2/languages?type=';
             fetch(url + type, {
                 method: 'GET',
@@ -115,7 +115,7 @@ export class DeepLTranslator implements MTEngine {
     }
 
     normalize(lang: string): string {
-        let index = lang.indexOf('-');
+        let index: number = lang.indexOf('-');
         if (index == -1) {
             return lang.toLowerCase();
         }

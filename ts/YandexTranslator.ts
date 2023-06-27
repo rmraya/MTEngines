@@ -31,7 +31,7 @@ export class YandexTranslator implements MTEngine {
     }
 
     getSourceLanguages(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             this.getLanguagePairs().then((pairs: string[]) => {
                 let languages: string[] = [];
                 for (let pair of pairs) {
@@ -48,7 +48,7 @@ export class YandexTranslator implements MTEngine {
     }
 
     getTargetLanguages(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             this.getLanguagePairs().then((pairs: string[]) => {
                 let languages: string[] = [];
                 for (let pair of pairs) {
@@ -82,7 +82,7 @@ export class YandexTranslator implements MTEngine {
 
     translate(source: string): Promise<string> {
         let url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + this.apiKey + '&text=' + encodeURIComponent(source) + "&lang=" + this.srcLang + "-" + this.tgtLang;
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
             }).then((response: Response) => {
@@ -94,7 +94,7 @@ export class YandexTranslator implements MTEngine {
                 } else {
                     reject(response.statusText);
                 }
-            }).catch(error => {
+            }).catch((error: any) => {
                 reject(error);
             });
         });
@@ -102,7 +102,7 @@ export class YandexTranslator implements MTEngine {
 
     getLanguagePairs(): Promise<string[]> {
         let url = 'https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=' + this.apiKey + '&ui=en';
-        return new Promise((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             fetch(url, {
                 method: 'GET',
                 headers: {
@@ -117,7 +117,7 @@ export class YandexTranslator implements MTEngine {
                 } else {
                     reject(response.statusText);
                 }
-            }).catch(error => {
+            }).catch((error: any) => {
                 reject(error);
             });
         });
