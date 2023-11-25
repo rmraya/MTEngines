@@ -23,8 +23,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.2",
-    "typesbcp47": "1.1.1",
-    "typesxml": "1.2.1"
+    "typescript": "^5.3.2"
+    
+  },
+  "dependencies": {
+    "typesbcp47": "1.1.1"
   }
 }
