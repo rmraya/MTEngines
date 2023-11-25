@@ -14,19 +14,20 @@ import { MTEngine } from "./MTEngine";
 
 export class ChatGPTTranslator implements MTEngine {
 
-    static readonly DAVINCI: string = "text-davinci-003";
-    static readonly CURIE: string = "text-curie-001";
-    static readonly BABBAGE: string = "text-babbage-001";
-    static readonly ADA: string = "text-ada-001";
+    static readonly TURBO_INSTRUCT: string = "gpt-3.5-turbo-instruct";
 
     srcLang: string;
     tgtLang: string;
     apiKey: string;
     model: string;
 
-    constructor(apiKey: string, model: string) {
+    constructor(apiKey: string, model?: string) {
         this.apiKey = apiKey;
-        this.model = model;
+        if (model) {
+            this.model = model;
+        } else {
+            this.model = ChatGPTTranslator.TURBO_INSTRUCT;
+        }
     }
 
     getName(): string {
@@ -88,9 +89,15 @@ export class ChatGPTTranslator implements MTEngine {
                 if (response.ok) {
                     response.json().then((json: any) => {
                         let array: any[] = json.choices;
-                        let translation: string = array[0].text;
+                        let translation: string = array[0].text.trim();
                         if (translation.startsWith('\n\n')) {
                             translation = translation.substring(2);
+                        }
+                        while (translation.startsWith('"') && translation.endsWith('"')) {
+                            translation = translation.substring(1, translation.length - 1);
+                        }
+                        if (source.startsWith('"') && source.endsWith('"')) {
+                            translation = '"' + translation + '"';
                         }
                         resolve(translation);
                     }).catch((error: any) => {

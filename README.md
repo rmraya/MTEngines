@@ -2,6 +2,20 @@
 
 Machine Translation engines library written in TypeScript
 
+Interface `MTEngine` provides these methos, implemented by all supported engines:
+
+```typescript
+    getName(): string;
+    getShortName(): string;
+    getSourceLanguages(): Promise<string[]>;
+    getTargetLanguages(): Promise<string[]>;
+    setSourceLanguage(lang: string): void;
+    getSourceLanguage(): string;
+    setTargetLanguage(lang: string): void;
+    getTargetLanguage(): string;
+    translate(source: string): Promise<string>;
+```
+
 ## Supported Engines
 
 - DeepL (Free and Pro)

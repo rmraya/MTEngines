@@ -11,6 +11,7 @@
  *******************************************************************************/
 
 import { MTEngine } from "./MTEngine";
+import { LanguageUtils } from "typesbcp47";
 
 export class DeepLTranslator implements MTEngine {
 
@@ -99,7 +100,7 @@ export class DeepLTranslator implements MTEngine {
                     response.json().then((json: any) => {
                         let languages: string[] = [];
                         for (let language of json) {
-                            languages.push(this.normalize(language.language));
+                            languages.push(LanguageUtils.normalizeCode(language.language));
                         }
                         resolve(languages);
                     }).catch((error: any) => {
@@ -112,13 +113,5 @@ export class DeepLTranslator implements MTEngine {
                 reject(error);
             });
         });
-    }
-
-    normalize(lang: string): string {
-        let index: number = lang.indexOf('-');
-        if (index == -1) {
-            return lang.toLowerCase();
-        }
-        return lang.substring(0, index).toLowerCase() + '-' + lang.substring(index + 1).toUpperCase();
     }
 }
