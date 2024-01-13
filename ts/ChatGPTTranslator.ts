@@ -10,6 +10,7 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
+import { Language, LanguageUtils } from "typesbcp47";
 import { MTEngine } from "./MTEngine";
 
 export class ChatGPTTranslator implements MTEngine {
@@ -38,12 +39,29 @@ export class ChatGPTTranslator implements MTEngine {
         return 'ChatGPT';
     }
 
+    getLanguages(): Promise<string[]> {
+        // ChatGPT should support any language, but we'll limit it to 
+        // the common ones supported by the TypesBCP47 library
+        return new Promise<string[]>((resolve, reject) => {
+            try {
+                let languages: Language[] = LanguageUtils.getCommonLanguages();
+                let result: string[] = [];
+                for (let language of languages) {
+                    result.push(language.code);
+                }
+                resolve(result);
+            } catch (error: any) {
+                reject(error);
+            }
+        });
+    }
+
     getSourceLanguages(): Promise<string[]> {
-        throw new Error("Method not implemented.");
+        return this.getLanguages();
     }
 
     getTargetLanguages(): Promise<string[]> {
-        throw new Error("Method not implemented.");
+        return this.getLanguages();
     }
 
     setSourceLanguage(lang: string): void {
