@@ -14,6 +14,8 @@ Interface `MTEngine` provides these methos, implemented by all supported engines
     setTargetLanguage(lang: string): void;
     getTargetLanguage(): string;
     translate(source: string): Promise<string>;
+    getMTMatch(source: string): Promise<MTMatch>;
+    handlesTags(): boolean;
 ```
 
 ## Supported Engines
@@ -21,6 +23,7 @@ Interface `MTEngine` provides these methos, implemented by all supported engines
 - DeepL (Free and Pro)
 - Google Cloud Translation
 - Microsoft Azure Translator Text
+- ModernMT
 - OpenAI ChatGPT
 - Yandex Translate API
 

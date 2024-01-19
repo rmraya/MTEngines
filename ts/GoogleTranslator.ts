@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Maxprograms.
+ * Copyright (c) 2023 - 2024 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse License 1.0
@@ -10,7 +10,10 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
+import { XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
+import { MTMatch } from "./MTMatch";
+import { MTUtils } from "./MTUtils";
 
 export class GoogleTranslator implements MTEngine {
 
@@ -57,8 +60,8 @@ export class GoogleTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let url = 'https://www.googleapis.com/language/translate/v2?key=' + this.apiKey + '&q=' + encodeURIComponent(source) + "&source=" + this.srcLang + "&target="
-            + this.tgtLang + "&model=" + (this.neural ? "nmt" : "base");
+        let url = 'https://www.googleapis.com/language/translate/v2?key=' + this.apiKey + '&q=' + encodeURIComponent(source)
+            + "&source=" + this.srcLang + "&target=" + this.tgtLang + "&model=" + (this.neural ? "nmt" : "base");
         return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
@@ -123,5 +126,21 @@ export class GoogleTranslator implements MTEngine {
             m = pattern.exec(result);
         }
         return result;
+    }
+
+    getMTMatch(source: XMLElement): Promise<MTMatch> {
+        return new Promise<MTMatch>((resolve, reject) => {
+            this.translate(MTUtils.plainText(source)).then((translation: string) => {
+                let target: XMLElement = new XMLElement('target');
+                target.addString(translation);
+                resolve(new MTMatch(source, target, this.getShortName()));
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
+    }
+
+    handlesTags(): boolean {
+        return false;
     }
 }

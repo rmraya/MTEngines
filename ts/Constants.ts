@@ -10,13 +10,9 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-export { AzureTranslator } from './AzureTranslator';
-export { ChatGPTTranslator } from './ChatGPTTranslator';
-export { Constants } from './Constants';
-export { DeepLTranslator } from './DeepLTranslator';
-export { GoogleTranslator } from './GoogleTranslator';
-export { MTEngine } from './MTEngine';
-export { MTMatch } from './MTMatch';
-export { MTUtils } from './MTUtils';
-export { ModernMTTranslator } from './ModernMTTranslator';
-export { YandexTranslator } from './YandexTranslator';
+export class Constants {
+
+    static readonly TOOL: string = 'MTEngines';
+    static readonly VERSION: string = '1.2.0';
+
+}

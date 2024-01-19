@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Maxprograms.
+ * Copyright (c) 2023 - 2024 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse License 1.0
@@ -10,8 +10,12 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-import { MTEngine } from "./MTEngine";
 import { LanguageUtils } from "typesbcp47";
+import { XMLElement } from "typesxml";
+import { MTEngine } from "./MTEngine";
+import { MTMatch } from "./MTMatch";
+import { MTUtils } from "./MTUtils";
+import { Constants } from "./Constants";
 
 export class DeepLTranslator implements MTEngine {
 
@@ -65,7 +69,7 @@ export class DeepLTranslator implements MTEngine {
                 method: 'POST',
                 headers: [
                     ['Authorization', 'DeepL-Auth-Key ' + this.apiKey],
-                    ['User-Agent', 'MTEngines 1.0'],
+                    ['User-Agent', Constants.TOOL + ' ' + Constants.VERSION],
                     ['Content-Type', 'application/x-www-form-urlencoded'],
                     ['Accept', 'application/json'],
                     ['Content-Length', '' + params.length]
@@ -113,5 +117,23 @@ export class DeepLTranslator implements MTEngine {
                 reject(error);
             });
         });
+    }
+
+    getMTMatch(source: XMLElement): Promise<MTMatch> {
+        return new Promise<MTMatch>((resolve, reject) => {
+            this.translate(MTUtils.getElementContent(source)).then((translation: string) => {
+                let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
+                if (source.hasAttribute('xml:space')) {
+                    target.setAttribute(source.getAttribute('xml:space'));
+                }
+                resolve(new MTMatch(source, target, this.getShortName()));
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
+    }
+
+    handlesTags(): boolean {
+        return true;
     }
 }

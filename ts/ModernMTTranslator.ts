@@ -13,24 +13,49 @@
 import { XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
+import { Constants } from "./Constants";
 import { MTUtils } from "./MTUtils";
 
-export class AzureTranslator implements MTEngine {
 
+export class ModernMTTranslator implements MTEngine {
+
+    apiKey: string;
     srcLang: string;
     tgtLang: string;
-    apiKey: string;
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;
     }
 
     getName(): string {
-        return 'Azure Translator Text';
+        return 'ModernMT';
     }
 
     getShortName(): string {
-        return 'Azure';
+        return 'ModernMT';
+    }
+
+    getLanguages(): Promise<string[]> {
+        return new Promise<string[]>((resolve, reject) => {
+            fetch('https://api.modernmt.com/translate/languages').then((response: Response) => {
+                if (response.ok) {
+                    response.json().then((json: any) => {
+                        if (json.status == 200) {
+                            let data: string[] = json.data;
+                            resolve(data.sort());
+                        } else {
+                            reject(json.error.message);
+                        }
+                    }).catch((error: any) => {
+                        reject(error);
+                    });
+                } else {
+                    reject(response.statusText);
+                }
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
     }
 
     getSourceLanguages(): Promise<string[]> {
@@ -58,46 +83,32 @@ export class AzureTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let url: string = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=' + this.srcLang + '&to=' + this.tgtLang;
-        let params: any = [{
-            "Text": source
-        }];
-        let data: string = JSON.stringify(params);
+        let json: any = {
+            "source": this.srcLang,
+            "target": this.tgtLang,
+            "q": source
+        };
+        let params: string = JSON.stringify(json);
         return new Promise<string>((resolve, reject) => {
-            fetch(url, {
+            fetch('https://api.modernmt.com/translate', {
                 method: 'POST',
                 headers: [
-                    ['Ocp-Apim-Subscription-Key', this.apiKey],
-                    ['Content-Type', 'application/json; charset=UTF-8']
+                    ['MMT-ApiKey', this.apiKey],
+                    ['X-HTTP-Method-Override', 'GET'],
+                    ['Content-Type', 'application/json'],
+                    ['Content-Length', '' + params.length]
                 ],
-                body: data
+                body: params
             }).then((response: Response) => {
                 if (response.ok) {
                     response.json().then((json: any) => {
-                        let array: any[] = json[0].translations;
-                        let translation: string = array[0].text;
-                        resolve(translation);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
-                } else {
-                    reject(response.statusText);
-                }
-            }).catch((error: any) => {
-                reject(error);
-            });
-        });
-    }
-
-    getLanguages(): Promise<string[]> {
-        return new Promise<string[]>((resolve, reject) => {
-            fetch('https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation'
-            ).then((response: Response) => {
-                if (response.ok) {
-                    response.json().then((json: any) => {
-                        let translation: any = json.translation;
-                        resolve(Object.keys(translation));
-                    }).catch((error: any) => {
+                        if (json.status === 200) {
+                            resolve(json.data.translation);
+                        } else {
+                            reject(json.error.message);
+                        }
+                        resolve(json.translations[0].text);
+                    }).catch(error => {
                         reject(error);
                     });
                 } else {
@@ -111,9 +122,11 @@ export class AzureTranslator implements MTEngine {
 
     getMTMatch(source: XMLElement): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
-            this.translate(MTUtils.plainText(source)).then((translation: string) => {
-                let target: XMLElement = new XMLElement('target');
-                target.addString(translation);
+            this.translate(MTUtils.getElementContent(source)).then((translation: string) => {
+                let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
+                if (source.hasAttribute('xml:space')) {
+                    target.setAttribute(source.getAttribute('xml:space'));
+                }
                 resolve(new MTMatch(source, target, this.getShortName()));
             }).catch((error: any) => {
                 reject(error);
@@ -122,6 +135,6 @@ export class AzureTranslator implements MTEngine {
     }
 
     handlesTags(): boolean {
-        return false;
+        return true;
     }
 }

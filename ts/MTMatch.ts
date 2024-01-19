@@ -9,21 +9,25 @@
  * Contributors:
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
-
 import { XMLElement } from "typesxml";
-import { MTMatch } from "./MTMatch";
 
-export interface MTEngine {
+export class MTMatch {
 
-    getName(): string;
-    getShortName(): string;
-    getSourceLanguages(): Promise<string[]>;
-    getTargetLanguages(): Promise<string[]>;
-    setSourceLanguage(lang: string): void;
-    getSourceLanguage(): string;
-    setTargetLanguage(lang: string): void;
-    getTargetLanguage(): string;
-    translate(source: string): Promise<string>;
-    getMTMatch(source: XMLElement): Promise<MTMatch>;
-    handlesTags(): boolean;
+    source: XMLElement;
+    target: XMLElement;
+    origin: string;
+
+    constructor(source: XMLElement, target: XMLElement, origin: string) {
+        this.source = source;
+        this.target = target;
+        this.origin = origin;
+    }
+
+    toJSON(): any {
+        return {
+            source: this.source.toString(),
+            target: this.target.toString(),
+            origin: this.origin
+        }
+    }
 }

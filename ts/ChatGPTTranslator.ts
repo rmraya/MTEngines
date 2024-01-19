@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Maxprograms.
+ * Copyright (c) 2023 - 2024 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse   License 1.0
@@ -10,24 +10,31 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
+import { OpenAI } from "openai";
 import { Language, LanguageUtils } from "typesbcp47";
+import { XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
+import { MTMatch } from "./MTMatch";
+import { MTUtils } from "./MTUtils";
 
 export class ChatGPTTranslator implements MTEngine {
 
-    static readonly TURBO_INSTRUCT: string = "gpt-3.5-turbo-instruct";
+    static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
+    static readonly GPT_4: string = "gpt-4";
 
+    openai: OpenAI;
     srcLang: string;
     tgtLang: string;
     apiKey: string;
     model: string;
 
     constructor(apiKey: string, model?: string) {
+        this.openai = new OpenAI({ apiKey: apiKey });
         this.apiKey = apiKey;
         if (model) {
             this.model = model;
         } else {
-            this.model = ChatGPTTranslator.TURBO_INSTRUCT;
+            this.model = ChatGPTTranslator.GPT_35_TURBO;
         }
     }
 
@@ -82,51 +89,49 @@ export class ChatGPTTranslator implements MTEngine {
 
     translate(source: string): Promise<string> {
         let propmt: string = 'Translate the text enclosed on triple quotes from "' + this.srcLang + '" to "' + this.tgtLang + '": """' + source + '"""';
-        let params: any = {
-            "model": this.model,
-            "prompt": propmt,
-            "max_tokens": 300,
-            "temperature": 0.7,
-            "top_p": 1,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
-        };
-        let data: string = JSON.stringify(params);
-
         return new Promise<string>((resolve, reject) => {
-            fetch('https://api.openai.com/v1/completions', {
-                method: 'POST',
-                headers: [
-                    ['Authorization', 'Bearer ' + this.apiKey],
-                    ['Content-Type', 'application/json'],
-                    ['Accept', 'application/json'],
-                    ['Content-Length', '' + data.length]
-                ],
-                body: data
-            }).then((response: Response) => {
-                if (response.ok) {
-                    response.json().then((json: any) => {
-                        let array: any[] = json.choices;
-                        let translation: string = array[0].text.trim();
-                        if (translation.startsWith('\n\n')) {
-                            translation = translation.substring(2);
-                        }
-                        while (translation.startsWith('"') && translation.endsWith('"')) {
-                            translation = translation.substring(1, translation.length - 1);
-                        }
-                        if (source.startsWith('"') && source.endsWith('"')) {
-                            translation = '"' + translation + '"';
-                        }
-                        resolve(translation);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
-                } else {
-                    reject(response.statusText);
+            this.openai.chat.completions.create({
+                model: this.model,
+                messages: [
+                    { "role": "system", "content": "You are a professional translator" },
+                    { "role": "user", "content": propmt }
+                ]
+            }).then((completion: any) => {
+                let choices: any[] = completion.choices;
+                let translation: string = choices[0].message.content;
+                if (translation.startsWith('\n\n')) {
+                    translation = translation.substring(2);
                 }
+                while (translation.startsWith('"') && translation.endsWith('"')) {
+                    translation = translation.substring(1, translation.length - 1);
+                }
+                if (source.startsWith('"') && source.endsWith('"')) {
+                    translation = '"' + translation + '"';
+                }
+                resolve(translation);
             }).catch((error: any) => {
                 reject(error);
             });
         });
+    }
+
+    getMTMatch(source: XMLElement): Promise<MTMatch> {
+        return new Promise<MTMatch>((resolve, reject) => {
+            this.translate(MTUtils.plainText(source)).then((translation: string) => {
+                let target: XMLElement = new XMLElement('target');
+                target.addString(translation);
+                resolve(new MTMatch(source, target, this.getShortName()));
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
+    }
+
+    handlesTags(): boolean {
+        return false;
+    }
+
+    getModels(): string[] {
+        return [ChatGPTTranslator.GPT_35_TURBO, ChatGPTTranslator.GPT_4];
     }
 }
