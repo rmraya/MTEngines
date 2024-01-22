@@ -95,8 +95,7 @@ export class ModernMTTranslator implements MTEngine {
                 headers: [
                     ['MMT-ApiKey', this.apiKey],
                     ['X-HTTP-Method-Override', 'GET'],
-                    ['Content-Type', 'application/json'],
-                    ['Content-Length', '' + params.length]
+                    ['Content-Type', 'application/json']
                 ],
                 body: params
             }).then((response: Response) => {

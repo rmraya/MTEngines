@@ -71,8 +71,7 @@ export class DeepLTranslator implements MTEngine {
                     ['Authorization', 'DeepL-Auth-Key ' + this.apiKey],
                     ['User-Agent', Constants.TOOL + ' ' + Constants.VERSION],
                     ['Content-Type', 'application/x-www-form-urlencoded'],
-                    ['Accept', 'application/json'],
-                    ['Content-Length', '' + params.length]
+                    ['Accept', 'application/json']
                 ],
                 body: params
             }).then((response: Response) => {
