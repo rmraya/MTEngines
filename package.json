@@ -3,6 +3,17 @@
   "productName": "MTEngines",
   "version": "1.2.1",
   "description": "Machine Translation (MT) library written in TypeScript",
+  "keywords": [
+    "Machine Translation",
+    "Google Translate",
+    "DeepL",
+    "OpenAI",
+    "MT",
+    "NMT",
+    "Neural Machine Translation",
+    "Yandex Translate",
+    "ModernMT"
+  ],
   "scripts": {
     "build": "tsc"
   },
