@@ -10,23 +10,20 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-import { LanguageUtils } from "typesbcp47";
+import * as deepl from 'deepl-node';
 import { XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
 import { MTUtils } from "./MTUtils";
-import { Constants } from "./Constants";
 
 export class DeepLTranslator implements MTEngine {
 
     srcLang: string;
     tgtLang: string;
-    apiKey: string;
-    proPlan: boolean;
+    translator: deepl.Translator;
 
-    constructor(apiKey: string, proPlan: boolean) {
-        this.apiKey = apiKey;
-        this.proPlan = proPlan;
+    constructor(apiKey: string) {
+        this.translator = new deepl.Translator(apiKey);
     }
 
     getName(): string {
@@ -38,11 +35,31 @@ export class DeepLTranslator implements MTEngine {
     }
 
     getSourceLanguages(): Promise<string[]> {
-        return this.getLanguages('source');
+        return new Promise<string[]>((resolve, reject) => {
+            this.translator.getSourceLanguages().then((languages: deepl.Language[]) => {
+                let codes: string[] = [];
+                for (let language of languages) {
+                    codes.push(language.code);
+                }
+                resolve(codes);
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
     }
 
     getTargetLanguages(): Promise<string[]> {
-        return this.getLanguages('target');
+        return new Promise<string[]>((resolve, reject) => {
+            this.translator.getTargetLanguages().then((languages: deepl.Language[]) => {
+                let codes: string[] = [];
+                for (let language of languages) {
+                    codes.push(language.code);
+                }
+                resolve(codes);
+            }).catch((error: any) => {
+                reject(error);
+            });
+        });
     }
 
     setSourceLanguage(lang: string): void {
@@ -62,59 +79,13 @@ export class DeepLTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let url: string = this.proPlan ? 'https://api.deepl.com/v1/translate' : 'https://api-free.deepl.com/v2/translate';
-        let params: string = "&text=" + encodeURIComponent(source) + "&source_lang=" + this.srcLang.toUpperCase() + "&target_lang=" + this.tgtLang.toUpperCase();
         return new Promise<string>((resolve, reject) => {
-            fetch(url, {
-                method: 'POST',
-                headers: [
-                    ['Authorization', 'DeepL-Auth-Key ' + this.apiKey],
-                    ['User-Agent', Constants.TOOL + ' ' + Constants.VERSION],
-                    ['Content-Type', 'application/x-www-form-urlencoded'],
-                    ['Accept', 'application/json']
-                ],
-                body: params
-            }).then((response: Response) => {
-                if (response.ok) {
-                    response.json().then((json: any) => {
-                        resolve(json.translations[0].text);
-                    }).catch(error => {
-                        reject(error);
-                    });
-                } else {
-                    reject(response.statusText);
-                }
-            }).catch((error: any) => {
-                reject(error);
-            });
-        });
-    }
-
-    getLanguages(type: string): Promise<string[]> {
-        return new Promise<string[]>((resolve, reject) => {
-            let url = this.proPlan ? 'https://api.deepl.com/v2/languages?type=' : 'https://api-free.deepl.com/v2/languages?type=';
-            fetch(url + type, {
-                method: 'GET',
-                headers: [
-                    ['Authorization', 'DeepL-Auth-Key ' + this.apiKey]
-                ]
-            }).then((response: Response) => {
-                if (response.ok) {
-                    response.json().then((json: any) => {
-                        let languages: string[] = [];
-                        for (let language of json) {
-                            languages.push(LanguageUtils.normalizeCode(language.language));
-                        }
-                        resolve(languages);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
-                } else {
-                    reject(response.statusText);
-                }
-            }).catch((error: any) => {
-                reject(error);
-            });
+            this.translator.translateText(source, this.srcLang as deepl.SourceLanguageCode, this.tgtLang as deepl.TargetLanguageCode).then(
+                (translation: deepl.TextResult) => {
+                    resolve(translation.text);
+                }).catch((error: any) => {
+                    reject(error);
+                });
         });
     }
 
