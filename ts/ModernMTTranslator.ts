@@ -13,7 +13,6 @@
 import { XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
-import { Constants } from "./Constants";
 import { MTUtils } from "./MTUtils";
 
 
