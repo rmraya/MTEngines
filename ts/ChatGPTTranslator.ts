@@ -21,6 +21,7 @@ export class ChatGPTTranslator implements MTEngine {
 
     static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
     static readonly GPT_4: string = "gpt-4";
+    static readonly GPT_4_TURBO_PREVIEW: string = 'gpt-4-turbo-preview';
 
     openai: OpenAI;
     srcLang: string;
@@ -132,6 +133,6 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        return [ChatGPTTranslator.GPT_35_TURBO, ChatGPTTranslator.GPT_4];
+        return [ChatGPTTranslator.GPT_35_TURBO, ChatGPTTranslator.GPT_4, ChatGPTTranslator.GPT_4_TURBO_PREVIEW];
     }
 }

@@ -37,8 +37,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "deepl-node": "^1.11.0",
-    "openai": "^4.26.0",
+    "deepl-node": "^1.11.1",
+    "openai": "^4.27.0",
     "typesbcp47": "1.2.0"
   }
 }
