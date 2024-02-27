@@ -1,8 +1,8 @@
 # MTEngines
 
-Machine Translation engines library written in TypeScript
+TypeScript library for Machine Translation (MT) engines.
 
-Interface `MTEngine` provides these methos, implemented by all supported engines:
+Interface `MTEngine` provides these methods, implemented by all supported engines:
 
 ```typescript
     getName(): string;
@@ -26,6 +26,12 @@ Interface `MTEngine` provides these methos, implemented by all supported engines
 - ModernMT
 - OpenAI ChatGPT
 - Yandex Translate API
+
+## Installation
+
+```bash
+npm install mtengines
+```
 
 ## Example
 
