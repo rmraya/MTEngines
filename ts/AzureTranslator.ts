@@ -71,17 +71,14 @@ export class AzureTranslator implements MTEngine {
                     ['Content-Type', 'application/json; charset=UTF-8']
                 ],
                 body: data
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        let array: any[] = json[0].translations;
-                        let translation: string = array[0].text;
-                        resolve(translation);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json: any = await response.json();
+                    let array: any[] = json[0].translations;
+                    let translation: string = array[0].text;
+                    resolve(translation);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -92,16 +89,13 @@ export class AzureTranslator implements MTEngine {
     getLanguages(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             fetch('https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation'
-            ).then((response: Response) => {
+            ).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        let translation: any = json.translation;
-                        resolve(Object.keys(translation));
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json: any = await response.json();
+                    let translation: any = json.translation;
+                    resolve(Object.keys(translation));
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);

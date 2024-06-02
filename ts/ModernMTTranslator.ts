@@ -36,20 +36,18 @@ export class ModernMTTranslator implements MTEngine {
 
     getLanguages(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
-            fetch('https://api.modernmt.com/translate/languages').then((response: Response) => {
+            fetch('https://api.modernmt.com/translate/languages').then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        if (json.status == 200) {
-                            let data: string[] = json.data;
-                            resolve(data.sort());
-                        } else {
-                            reject(json.error.message);
-                        }
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json = await response.json();
+                    if (json.status == 200) {
+                        let data: string[] = json.data;
+                        data.sort(new Intl.Collator('en').compare);
+                        resolve(data);
+                    } else {
+                        reject(new Error(json.error.message));
+                    }
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -97,20 +95,17 @@ export class ModernMTTranslator implements MTEngine {
                     ['Content-Type', 'application/json']
                 ],
                 body: params
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        if (json.status === 200) {
-                            resolve(json.data.translation);
-                        } else {
-                            reject(json.error.message);
-                        }
-                        resolve(json.translations[0].text);
-                    }).catch(error => {
-                        reject(error);
-                    });
+                    let json = await response.json();
+                    if (json.status === 200) {
+                        resolve(json.data.translation);
+                    } else {
+                        reject(new Error(json.error.message));
+                    }
+                    resolve(json.translations[0].text);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);

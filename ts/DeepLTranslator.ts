@@ -12,10 +12,10 @@
 
 import { LanguageUtils } from "typesbcp47";
 import { XMLElement } from "typesxml";
+import { Constants } from "./Constants";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
 import { MTUtils } from "./MTUtils";
-import { Constants } from "./Constants";
 
 export class DeepLTranslator implements MTEngine {
 
@@ -67,7 +67,10 @@ export class DeepLTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let params: string = "&text=" + encodeURIComponent(source) + "&source_lang=" + this.srcLang.toUpperCase() + "&target_lang=" + this.tgtLang.toUpperCase();
+        let params: string = "&text=" + encodeURIComponent(source)
+            + "&source_lang=" + this.srcLang.toUpperCase()
+            + "&target_lang=" + this.tgtLang.toUpperCase()
+            + "&tag_handling=xml&split_sentences=nonewlines";
         return new Promise<string>((resolve, reject) => {
             fetch(this.translateUrl, {
                 method: 'POST',
@@ -79,15 +82,12 @@ export class DeepLTranslator implements MTEngine {
                     ['Content-Length', params.length.toString()]
                 ],
                 body: params
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        resolve(json.translations[0].text);
-                    }).catch(error => {
-                        reject(error);
-                    });
+                    let json: any = await response.json();
+                    resolve(json.translations[0].text);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -102,19 +102,16 @@ export class DeepLTranslator implements MTEngine {
                 headers: [
                     ['Authorization', 'DeepL-Auth-Key ' + this.apiKey]
                 ]
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.status === 200) {
-                    response.json().then((json: any) => {
-                        let languages: string[] = [];
-                        for (let language of json) {
-                            languages.push(LanguageUtils.normalizeCode(language.language));
-                        }
-                        resolve(languages);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json: any = await response.json();
+                    let languages: string[] = [];
+                    for (let language of json) {
+                        languages.push(LanguageUtils.normalizeCode(language.language));
+                    }
+                    resolve(languages);
                 } else {
-                    reject(response.status + ': ' + response.statusText);
+                    reject(new Error(response.status + ': ' + response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -124,12 +121,19 @@ export class DeepLTranslator implements MTEngine {
 
     getMTMatch(source: XMLElement): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
-            this.translate(MTUtils.getElementContent(source)).then((translation: string) => {
-                let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
-                if (source.hasAttribute('xml:space')) {
-                    target.setAttribute(source.getAttribute('xml:space'));
+            let content: string = MTUtils.getElementContent(source);
+            this.translate(content).then((translation: string) => {
+                try {
+                    let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
+                    if (source.hasAttribute('xml:space')) {
+                        target.setAttribute(source.getAttribute('xml:space'));
+                    }
+                    resolve(new MTMatch(source, target, this.getShortName()));
+                } catch (error) {
+                    console.error('Failed to translate ', source.toString());
+                    console.error('Received text: ', translation);
+                    reject(error);
                 }
-                resolve(new MTMatch(source, target, this.getShortName()));
             }).catch((error: any) => {
                 reject(error);
             });

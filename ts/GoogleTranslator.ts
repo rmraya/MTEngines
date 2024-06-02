@@ -65,18 +65,15 @@ export class GoogleTranslator implements MTEngine {
         return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        let data: any = json.data;
-                        let translations: any[] = data.translations;
-                        let transation = this.removeEntities(translations[0].translatedText);
-                        resolve(transation);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json = await response.json();
+                    let data: any = json.data;
+                    let translations: any[] = data.translations;
+                    let transation = this.removeEntities(translations[0].translatedText);
+                    resolve(transation);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -90,21 +87,18 @@ export class GoogleTranslator implements MTEngine {
         return new Promise<string[]>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        let data: any = json.data;
-                        let array: any[] = data.languages;
-                        let languages: string[] = [];
-                        for (let i = 0; i < array.length; i++) {
-                            languages.push(array[i].language);
-                        }
-                        resolve(languages);
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
+                    let json = await response.json();
+                    let data: any = json.data;
+                    let array: any[] = data.languages;
+                    let languages: string[] = [];
+                    for (let lang of array) {
+                        languages.push(lang.language);
+                    }
+                    resolve(languages);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
@@ -114,7 +108,7 @@ export class GoogleTranslator implements MTEngine {
 
     removeEntities(text: string): string {
         let result: string = text;
-        const pattern: RegExp = /\&\#[\d]+\;/g;
+        const pattern: RegExp = /&#[\d]+;/g;
         let m: RegExpExecArray | null = pattern.exec(result);
         while (m !== null) {
             const from: number = m.index;

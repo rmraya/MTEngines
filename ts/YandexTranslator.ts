@@ -58,7 +58,8 @@ export class YandexTranslator implements MTEngine {
                     languages.push(lang);
                 }
             }
-            resolve(languages.sort());
+            languages.sort(new Intl.Collator('en').compare);
+            resolve(languages);
         });
     }
 
@@ -71,7 +72,8 @@ export class YandexTranslator implements MTEngine {
                     languages.push(lang);
                 }
             }
-            resolve(languages.sort());
+            languages.sort(new Intl.Collator('en').compare);
+            resolve(languages);
         });
     }
 
@@ -96,14 +98,13 @@ export class YandexTranslator implements MTEngine {
         return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
-            }).then((response: Response) => {
+            }).then(async (response: Response) => {
                 if (response.ok) {
-                    response.json().then((json: any) => {
-                        let translation = json.text[0];
-                        resolve(translation);
-                    });
+                    let json = await response.json();
+                    let translation = json.text[0];
+                    resolve(translation);
                 } else {
-                    reject(response.statusText);
+                    reject(new Error(response.statusText));
                 }
             }).catch((error: any) => {
                 reject(error);
