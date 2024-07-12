@@ -18,13 +18,13 @@ import { MTUtils } from "./MTUtils";
 export class GoogleTranslator implements MTEngine {
 
     apiKey: string;
-    neural: boolean;
     srcLang: string;
     tgtLang: string;
 
-    constructor(apiKey: string, neural: boolean) {
+    constructor(apiKey: string) {
+        // Google is not reporting language codes for base model, only for nmt
+        // Using the nmt model for now
         this.apiKey = apiKey;
-        this.neural = neural;
     }
 
     getName(): string {
@@ -61,7 +61,7 @@ export class GoogleTranslator implements MTEngine {
 
     translate(source: string): Promise<string> {
         let url = 'https://www.googleapis.com/language/translate/v2?key=' + this.apiKey + '&q=' + encodeURIComponent(source)
-            + "&source=" + this.srcLang + "&target=" + this.tgtLang + "&model=" + (this.neural ? "nmt" : "base");
+            + "&source=" + this.srcLang + "&target=" + this.tgtLang + "&model=nmt";
         return new Promise<string>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'
@@ -82,8 +82,7 @@ export class GoogleTranslator implements MTEngine {
     }
 
     getLanguages(): Promise<string[]> {
-        let url = 'https://translation.googleapis.com/language/translate/v2/languages?key=' + this.apiKey
-            + "&model=" + (this.neural ? "nmt" : "base");
+        let url = 'https://translation.googleapis.com/language/translate/v2/languages?key=' + this.apiKey + "&model=nmt";
         return new Promise<string[]>((resolve, reject) => {
             fetch(url, {
                 method: 'GET'

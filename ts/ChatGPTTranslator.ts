@@ -52,7 +52,7 @@ export class ChatGPTTranslator implements MTEngine {
         // the common ones supported by the TypesBCP47 library
         return new Promise<string[]>((resolve, reject) => {
             try {
-                let languages: Language[] = LanguageUtils.getCommonLanguages();
+                let languages: Language[] = LanguageUtils.getCommonLanguages('en');
                 let result: string[] = [];
                 for (let language of languages) {
                     result.push(language.code);
