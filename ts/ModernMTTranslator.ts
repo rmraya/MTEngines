@@ -49,7 +49,7 @@ export class ModernMTTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -107,7 +107,7 @@ export class ModernMTTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -121,7 +121,7 @@ export class ModernMTTranslator implements MTEngine {
                     target.setAttribute(source.getAttribute('xml:space'));
                 }
                 resolve(new MTMatch(source, target, this.getShortName()));
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });

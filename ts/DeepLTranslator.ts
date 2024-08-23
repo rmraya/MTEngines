@@ -89,7 +89,7 @@ export class DeepLTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -113,7 +113,7 @@ export class DeepLTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.status + ': ' + response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -130,11 +130,13 @@ export class DeepLTranslator implements MTEngine {
                     }
                     resolve(new MTMatch(source, target, this.getShortName()));
                 } catch (error) {
-                    console.error('Failed to translate ', source.toString());
-                    console.error('Received text: ', translation);
-                    reject(error);
+                    if (error instanceof Error) {
+                        reject(error);
+                        return;
+                    }
+                    reject(error as Error);
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });

@@ -25,7 +25,7 @@ export class MTUtils {
         let text: string = '';
         for (let node of e.getContent()) {
             if (node instanceof XMLElement) {
-                text += (node as XMLElement).getText();
+                text += node.getText();
             } else if (node instanceof TextNode) {
                 text += node.toString();
             }

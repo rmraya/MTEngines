@@ -97,7 +97,9 @@ export class YandexTranslator implements MTEngine {
         let url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + this.apiKey + '&text=' + encodeURIComponent(source) + "&lang=" + this.srcLang + "-" + this.tgtLang;
         return new Promise<string>((resolve, reject) => {
             fetch(url, {
-                method: 'GET'
+                method: 'GET', headers: {
+                    'Accept': 'application/json'
+                }
             }).then(async (response: Response) => {
                 if (response.ok) {
                     let json = await response.json();
@@ -106,7 +108,7 @@ export class YandexTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -118,7 +120,7 @@ export class YandexTranslator implements MTEngine {
                 let target: XMLElement = new XMLElement('target');
                 target.addString(translation);
                 resolve(new MTMatch(source, target, this.getShortName()));
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });

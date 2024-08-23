@@ -19,9 +19,11 @@ import { MTUtils } from "./MTUtils";
 
 export class ChatGPTTranslator implements MTEngine {
 
-    static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
+    static readonly GPT_4o: string = "gpt-4o";
+    static readonly GPT_4o_MINI: string = "gpt-4o-mini";
     static readonly GPT_4: string = "gpt-4";
-    static readonly GPT_4_TURBO_PREVIEW: string = 'gpt-4-turbo-preview';
+    static readonly GPT_4_TURBO: string = "gpt-4-turbo";
+    static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
 
     openai: OpenAI;
     srcLang: string;
@@ -58,8 +60,12 @@ export class ChatGPTTranslator implements MTEngine {
                     result.push(language.code);
                 }
                 resolve(result);
-            } catch (error: any) {
-                reject(error);
+            } catch (error) {
+                if (error instanceof Error) {
+                    reject(error);
+                    return;
+                }
+                reject(error as Error);
             }
         });
     }
@@ -110,7 +116,7 @@ export class ChatGPTTranslator implements MTEngine {
                     translation = '"' + translation + '"';
                 }
                 resolve(translation);
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -122,7 +128,7 @@ export class ChatGPTTranslator implements MTEngine {
                 let target: XMLElement = new XMLElement('target');
                 target.addString(translation);
                 resolve(new MTMatch(source, target, this.getShortName()));
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -133,6 +139,6 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        return [ChatGPTTranslator.GPT_35_TURBO, ChatGPTTranslator.GPT_4, ChatGPTTranslator.GPT_4_TURBO_PREVIEW];
+        return [ChatGPTTranslator.GPT_4o, ChatGPTTranslator.GPT_4o_MINI, ChatGPTTranslator.GPT_4, ChatGPTTranslator.GPT_4_TURBO, ChatGPTTranslator.GPT_35_TURBO];
     }
 }

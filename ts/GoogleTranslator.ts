@@ -75,7 +75,7 @@ export class GoogleTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -99,7 +99,7 @@ export class GoogleTranslator implements MTEngine {
                 } else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
@@ -127,7 +127,7 @@ export class GoogleTranslator implements MTEngine {
                 let target: XMLElement = new XMLElement('target');
                 target.addString(translation);
                 resolve(new MTMatch(source, target, this.getShortName()));
-            }).catch((error: any) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
