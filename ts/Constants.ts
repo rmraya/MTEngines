@@ -13,6 +13,6 @@
 export class Constants {
 
     static readonly TOOL: string = 'MTEngines';
-    static readonly VERSION: string = '1.6.0';
+    static readonly VERSION: string = '2.0.0';
 
 }
