@@ -94,21 +94,31 @@ export class YandexTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + this.apiKey + '&text=' + encodeURIComponent(source) + "&lang=" + this.srcLang + "-" + this.tgtLang;
-        return new Promise<string>((resolve, reject) => {
-            fetch(url, {
-                method: 'GET', headers: {
-                    'Accept': 'application/json'
-                }
-            }).then(async (response: Response) => {
+        let params = {
+            "texts":[
+                source
+            ],
+            "targetLanguageCode":this.tgtLang,
+            "sourceLanguageCode":this.srcLang
+        };
+        let data = JSON.stringify(params);
+        return new Promise((resolve, reject) => {
+            fetch("https://translate.api.cloud.yandex.net/translate/v2/translate", {
+                method: 'POST',
+                headers: [
+                    ['Authorization', 'Api-Key ' + this.apiKey],
+                    ['Content-Type', 'application/json']
+                ],
+                body: data
+            }).then(async (response) => {
                 if (response.ok) {
                     let json = await response.json();
-                    let translation = json.text[0];
-                    resolve(translation);
-                } else {
+                    resolve(json.translations[0].text);
+                }
+                else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error: Error) => {
+            }).catch((error) => {
                 reject(error);
             });
         });
