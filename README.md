@@ -41,7 +41,7 @@ import { GoogleTranslator } from "mtengines";
 class TestGoogle {
 
     constructor() {
-        let translator: GoogleTranslator = new GoogleTranslator('yourApiKey', true);
+        let translator: GoogleTranslator = new GoogleTranslator('yourApiKey');
         translator.setSourceLanguage("en");
         translator.setTargetLanguage("ja");
          translator.translate("Hello World").then((result:string) => {
