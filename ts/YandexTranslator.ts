@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 - 2024 Maxprograms.
+ * Copyright (c) 2023 - 2025 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse License 1.0
@@ -95,11 +95,11 @@ export class YandexTranslator implements MTEngine {
 
     translate(source: string): Promise<string> {
         let params = {
-            "texts":[
+            "texts": [
                 source
             ],
-            "targetLanguageCode":this.tgtLang,
-            "sourceLanguageCode":this.srcLang
+            "targetLanguageCode": this.tgtLang,
+            "sourceLanguageCode": this.srcLang
         };
         let data = JSON.stringify(params);
         return new Promise((resolve, reject) => {
@@ -118,7 +118,7 @@ export class YandexTranslator implements MTEngine {
                 else {
                     reject(new Error(response.statusText));
                 }
-            }).catch((error) => {
+            }).catch((error: Error) => {
                 reject(error);
             });
         });
