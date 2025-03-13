@@ -145,4 +145,8 @@ export class DeepLTranslator implements MTEngine {
     handlesTags(): boolean {
         return true;
     }
+    
+    fixesMatches(): boolean {
+        return false;
+    }
 }

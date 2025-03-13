@@ -2,7 +2,7 @@
 
 TypeScript library for Machine Translation (MT) engines.
 
-Interface `MTEngine` provides these methods, implemented by all supported engines:
+Interface `MTEngine` provides these methods:
 
 ```typescript
     getName(): string;
@@ -16,6 +16,20 @@ Interface `MTEngine` provides these methods, implemented by all supported engine
     translate(source: string): Promise<string>;
     getMTMatch(source: string): Promise<MTMatch>;
     handlesTags(): boolean;
+    fixesMatches(): boolean;
+    fixMatch?(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
+```
+
+All supported engines implement this interface. The `fixMatch()` method is optional and only implemented by `ChatGPTTranslator`.
+
+```typescript
+    getSource(): string;
+    getTarget(): string;
+    getConfidence(): number;
+    getSourceLanguage(): string;
+    getTargetLanguage(): string;
+    getSourceXMLElement(): XMLElement;
+    getTargetXMLElement(): XMLElement;
 ```
 
 ## Supported Engines

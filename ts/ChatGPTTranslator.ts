@@ -49,6 +49,12 @@ export class ChatGPTTranslator implements MTEngine {
         return 'ChatGPT';
     }
 
+    getRole(): string {
+        let srcLanguage: string = LanguageUtils.getLanguage(this.srcLang, 'en').description;
+        let tgetLanguage: string = LanguageUtils.getLanguage(this.tgtLang, 'en').description;
+        return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + '.';
+    }
+    
     getLanguages(): Promise<string[]> {
         // ChatGPT should support any language, but we'll limit it to 
         // the common ones supported by the TypesBCP47 library
@@ -100,7 +106,7 @@ export class ChatGPTTranslator implements MTEngine {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": "You are a professional translator" },
+                    { "role": "system", "content": this.getRole()},
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {
@@ -140,5 +146,63 @@ export class ChatGPTTranslator implements MTEngine {
 
     getModels(): string[] {
         return [ChatGPTTranslator.GPT_4o, ChatGPTTranslator.GPT_4o_MINI, ChatGPTTranslator.GPT_4, ChatGPTTranslator.GPT_4_TURBO, ChatGPTTranslator.GPT_35_TURBO];
+    }
+
+    fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
+        return new Promise<MTMatch>((resolve, reject) => {
+            this.fixTranslation(originalSource, matchSource, matchTarget).then((translation: string) => {
+                let target: XMLElement = MTUtils.toXMLElement(translation);
+                resolve(new MTMatch(originalSource, target, this.getShortName()));
+            }).catch((error: Error) => {
+                reject(error);
+            });
+        });
+    }
+
+    fixTranslation(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<string> {
+        let propmt: string = `The following "Target XML" is the translation of "Source XML".
+
+Target XML: ` + matchTarget.toString() + `
+Source XML: ` + matchSource.toString() + `
+
+The following "New XML" is similar to "Source XML".
+
+New XML: ` + originalSource.toString() + `
+
+Translate the content of "New XML" so that the translation is phrased similarly to the content of "Target XML" but is an accurate translation of "New XML".
+
+Provide only the requested translation in the same XML format as "Target XML" and do not add any additional text. Make sure the translation is valid XML and does not contain any XML errors.`;
+       
+        return new Promise<string>((resolve, reject) => {
+            this.openai.chat.completions.create({
+                model: this.model,
+                messages: [
+                    { "role": "system", "content": this.getRole() },
+                    { "role": "user", "content": propmt }
+                ]
+            }).then((completion: any) => {
+                let choices: any[] = completion.choices;
+                let translation: string = choices[0].message.content;
+                if (translation.startsWith('\n\n')) {
+                    translation = translation.substring(2);
+                }
+                while (translation.startsWith('"') && translation.endsWith('"')) {
+                    translation = translation.substring(1, translation.length - 1);
+                }
+                if  (translation.startsWith('```xml') && translation.endsWith('```')) {
+                    translation = translation.substring(6, translation.length - 3).trim();
+                }
+                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                    translation = '<target>' + translation + '</target>';
+                }
+                resolve(translation);
+            }).catch((error: Error) => {
+                reject(error);
+            });
+        });
+    }
+    
+    fixesMatches(): boolean {
+        return true;
     }
 }

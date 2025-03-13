@@ -118,4 +118,8 @@ export class AzureTranslator implements MTEngine {
     handlesTags(): boolean {
         return false;
     }
+    
+    fixesMatches(): boolean {
+        return false;
+    }
 }

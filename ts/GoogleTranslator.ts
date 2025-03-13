@@ -136,4 +136,8 @@ export class GoogleTranslator implements MTEngine {
     handlesTags(): boolean {
         return false;
     }
+    
+    fixesMatches(): boolean {
+        return false;
+    }
 }

@@ -143,4 +143,8 @@ export class YandexTranslator implements MTEngine {
     static getDirections(): string[] {
         return this.directions;
     }
+    
+    fixesMatches(): boolean {
+        return false;
+    }
 }

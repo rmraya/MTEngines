@@ -130,4 +130,8 @@ export class ModernMTTranslator implements MTEngine {
     handlesTags(): boolean {
         return true;
     }
+    
+    fixesMatches(): boolean {
+        return false;
+    }
 }
