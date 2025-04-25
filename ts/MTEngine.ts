@@ -27,5 +27,5 @@ export interface MTEngine {
     getMTMatch(source: XMLElement): Promise<MTMatch>;
     handlesTags(): boolean;
     fixesMatches(): boolean;
-    fixMatch?(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
+    fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
 }

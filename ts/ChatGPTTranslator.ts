@@ -19,6 +19,9 @@ import { MTUtils } from "./MTUtils";
 
 export class ChatGPTTranslator implements MTEngine {
 
+    static readonly GPT_41: string = "gpt-4.1";
+    static readonly GPT_41_MINI: string = "gpt-4.1-mini";
+    static readonly GPT_41_NANO: string = "gpt-4.1-nano";
     static readonly GPT_4o: string = "gpt-4o";
     static readonly GPT_4o_MINI: string = "gpt-4o-mini";
     static readonly GPT_4: string = "gpt-4";
@@ -54,7 +57,7 @@ export class ChatGPTTranslator implements MTEngine {
         let tgetLanguage: string = LanguageUtils.getLanguage(this.tgtLang, 'en').description;
         return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + '.';
     }
-    
+
     getLanguages(): Promise<string[]> {
         // ChatGPT should support any language, but we'll limit it to 
         // the common ones supported by the TypesBCP47 library
@@ -101,12 +104,14 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let propmt: string = 'Translate the text enclosed on triple quotes from "' + this.srcLang + '" to "' + this.tgtLang + '": """' + source + '"""';
+        let propmt: string = 'Accurately translate the text enclosed in triple quotes from ' +
+            LanguageUtils.getLanguage(this.srcLang, 'en').description + ' to ' + LanguageUtils.getLanguage(this.tgtLang, 'en').description +
+            ' preserving the meaning, tone, and nuance of the original text. """' + source + '"""';
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": this.getRole()},
+                    { "role": "system", "content": this.getRole() },
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {
@@ -172,7 +177,7 @@ New XML: ` + originalSource.toString() + `
 Translate the content of "New XML" so that the translation is phrased similarly to the content of "Target XML" but is an accurate translation of "New XML".
 
 Provide only the requested translation in the same XML format as "Target XML" and do not add any additional text. Make sure the translation is valid XML and does not contain any XML errors.`;
-       
+
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
@@ -189,7 +194,7 @@ Provide only the requested translation in the same XML format as "Target XML" an
                 while (translation.startsWith('"') && translation.endsWith('"')) {
                     translation = translation.substring(1, translation.length - 1);
                 }
-                if  (translation.startsWith('```xml') && translation.endsWith('```')) {
+                if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
                 }
                 if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
@@ -201,7 +206,7 @@ Provide only the requested translation in the same XML format as "Target XML" an
             });
         });
     }
-    
+
     fixesMatches(): boolean {
         return true;
     }

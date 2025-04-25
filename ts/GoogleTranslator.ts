@@ -140,4 +140,11 @@ export class GoogleTranslator implements MTEngine {
     fixesMatches(): boolean {
         return false;
     }
+
+
+    fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
+        return new Promise<MTMatch>((resolve, reject) => {
+            reject(new Error('fixMatch not implemented for Google Cloud Translation'));
+        });
+    }
 }
