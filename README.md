@@ -17,20 +17,12 @@ Interface `MTEngine` provides these methods:
     getMTMatch(source: string): Promise<MTMatch>;
     handlesTags(): boolean;
     fixesMatches(): boolean;
-    fixMatch?(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
+    fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
+    fixesTags(): boolean;
+    fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 ```
 
-All supported engines implement this interface. The `fixMatch()` method is optional and only implemented by `ChatGPTTranslator`.
-
-```typescript
-    getSource(): string;
-    getTarget(): string;
-    getConfidence(): number;
-    getSourceLanguage(): string;
-    getTargetLanguage(): string;
-    getSourceXMLElement(): XMLElement;
-    getTargetXMLElement(): XMLElement;
-```
+All supported engines implement this interface. Methods `fixMatch()` and `fixTags()` are only implemented by `ChatGPTTranslator`, all other engines throw an error when they are called.
 
 ## Supported Engines
 
@@ -58,9 +50,9 @@ class TestGoogle {
         let translator: GoogleTranslator = new GoogleTranslator('yourApiKey');
         translator.setSourceLanguage("en");
         translator.setTargetLanguage("ja");
-         translator.translate("Hello World").then((result:string) => {
+         translator.translate("Hello World").then((result: string) => {
             console.log(result);
-        }, (error:any) => {
+        }, (error: any) => {
             console.error(error);
         });
     }

@@ -1,7 +1,7 @@
 {
   "name": "mtengines",
   "productName": "MTEngines",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Machine Translation (MT) library written in TypeScript",
   "keywords": [
     "Machine Translation",
@@ -33,12 +33,12 @@
     "url": "https://github.com/rmraya/MTEngines.git"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
-    "typescript": "^5.8.2"
+    "@types/node": "^22.15.29",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "openai": "^4.96.0",
-    "typesbcp47": "1.5.4",
+    "openai": "^5.1.0",
+    "typesbcp47": "1.5.5",
     "typesxml":"1.7.0"
   }
 }

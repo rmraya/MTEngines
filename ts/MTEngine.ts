@@ -28,4 +28,6 @@ export interface MTEngine {
     handlesTags(): boolean;
     fixesMatches(): boolean;
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;
+    fixesTags(): boolean;
+    fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 }

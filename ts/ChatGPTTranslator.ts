@@ -12,7 +12,7 @@
 
 import { OpenAI } from "openai";
 import { Language, LanguageUtils } from "typesbcp47";
-import { XMLElement } from "typesxml";
+import { DOMBuilder, SAXParser, XMLElement, XMLDocument } from "typesxml";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
 import { MTUtils } from "./MTUtils";
@@ -55,7 +55,7 @@ export class ChatGPTTranslator implements MTEngine {
     getRole(): string {
         let srcLanguage: string = LanguageUtils.getLanguage(this.srcLang, 'en').description;
         let tgetLanguage: string = LanguageUtils.getLanguage(this.tgtLang, 'en').description;
-        return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + '.';
+        return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + ' with expert knowledge of XLIFF 2.1 formatting and best practices.';
     }
 
     getLanguages(): Promise<string[]> {
@@ -209,5 +209,63 @@ Provide only the requested translation in the same XML format as "Target XML" an
 
     fixesMatches(): boolean {
         return true;
+    }
+
+    fixesTags(): boolean {
+        return true;
+    }
+
+    fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
+        let lang: string = this.tgtLang.indexOf('-') > 0 ? this.tgtLang.substring(0, this.tgtLang.indexOf('-')) : this.tgtLang;
+        let tgetLanguage: string = LanguageUtils.getLanguage(lang, 'en').description;
+        let propmt: string = 'Given the following <source> and <target> XML elements from an XLIFF 2.1 document:\n\n' +
+
+            source.toString() + '\n' +
+            target.toString() + '\n\n' +
+
+            'The <target> element is missing required inline elements.\n' +
+
+            'Your task is to revise the <target> so that:\n' +
+            '	•	All inline elements from the <source> appear in the corrected <target>, in the appropriate grammatical and semantic positions for accurate' + tgetLanguage + '.\n' +
+            '	•	The translation remains fluent and faithful to the source meaning.\n' +
+            '	•	Do not add, omit, or reorder any inline elements.\n' +
+            '	•	Do not change the Japanese text.\n' +
+            '	•	Do not include any explanation or comments, return only the corrected <target> element.\n' +
+
+            'Provide only the corrected <target> element in your response.\n';
+
+        return new Promise<XMLElement>((resolve, reject) => {
+            this.openai.chat.completions.create({
+                model: this.model,
+                messages: [
+                    { "role": "system", "content": this.getRole() },
+                    { "role": "user", "content": propmt }
+                ]
+            }).then((completion: any) => {
+                let choices: any[] = completion.choices;
+                let translation: string = choices[0].message.content;
+                if (translation.startsWith('\n\n')) {
+                    translation = translation.substring(2);
+                }
+                while (translation.startsWith('"') && translation.endsWith('"')) {
+                    translation = translation.substring(1, translation.length - 1);
+                }
+                if (translation.startsWith('```xml') && translation.endsWith('```')) {
+                    translation = translation.substring(6, translation.length - 3).trim();
+                }
+                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                    translation = '<target>' + translation + '</target>';
+                }
+
+                let contentHandler: DOMBuilder = new DOMBuilder();
+                let xmlParser = new SAXParser();
+                xmlParser.setContentHandler(contentHandler);
+                xmlParser.parseString(translation);
+                let newDoc: XMLDocument = contentHandler.getDocument();
+                resolve(newDoc.getRoot());
+            }).catch((error: Error) => {
+                reject(error);
+            });
+        });
     }
 }

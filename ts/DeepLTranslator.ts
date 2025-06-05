@@ -156,4 +156,14 @@ export class DeepLTranslator implements MTEngine {
         });
     }
 
+    fixesTags(): boolean {
+        return false;
+    }
+    
+    fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
+        return new Promise<XMLElement>((resolve, reject) => {
+            reject(new Error('fixTags not implemented for DeepL API'));
+        });
+    }
+
 }
