@@ -10,6 +10,7 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
+export { AnthropicTranslator } from './AnthropicTranslator';
 export { AzureTranslator } from './AzureTranslator';
 export { ChatGPTTranslator } from './ChatGPTTranslator';
 export { Constants } from './Constants';

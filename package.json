@@ -7,7 +7,8 @@
     "Machine Translation",
     "Google Translate",
     "DeepL",
-    "OpenAI",
+    "OpenAI ChatGPT",
+    "Anthropic Claude",
     "MT",
     "NMT",
     "Neural Machine Translation",
@@ -33,12 +34,13 @@
     "url": "https://github.com/rmraya/MTEngines.git"
   },
   "devDependencies": {
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.30",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "openai": "^5.1.0",
+    "@anthropic-ai/sdk": "^0.53.0",
+    "openai": "^5.1.1",
     "typesbcp47": "1.5.5",
-    "typesxml":"1.7.0"
+    "typesxml": "1.7.0"
   }
 }

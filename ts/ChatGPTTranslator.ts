@@ -37,11 +37,7 @@ export class ChatGPTTranslator implements MTEngine {
     constructor(apiKey: string, model?: string) {
         this.openai = new OpenAI({ apiKey: apiKey });
         this.apiKey = apiKey;
-        if (model) {
-            this.model = model;
-        } else {
-            this.model = ChatGPTTranslator.GPT_35_TURBO;
-        }
+        this.model = model ? model : ChatGPTTranslator.GPT_4o_MINI;
     }
 
     getName(): string {
@@ -150,7 +146,11 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        return [ChatGPTTranslator.GPT_4o, ChatGPTTranslator.GPT_4o_MINI, ChatGPTTranslator.GPT_4, ChatGPTTranslator.GPT_4_TURBO, ChatGPTTranslator.GPT_35_TURBO];
+        return [ChatGPTTranslator.GPT_4o,
+        ChatGPTTranslator.GPT_4o_MINI,
+        ChatGPTTranslator.GPT_4,
+        ChatGPTTranslator.GPT_4_TURBO,
+        ChatGPTTranslator.GPT_35_TURBO];
     }
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
@@ -165,19 +165,17 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     fixTranslation(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<string> {
-        let propmt: string = `The following "Target XML" is the translation of "Source XML".
+        let propmt: string = this.getRole() + 'The following "Target XML" is the translation of "Source XML".\n\n' +
 
-Target XML: ` + matchTarget.toString() + `
-Source XML: ` + matchSource.toString() + `
+            'Target XML: ' + matchTarget.toString() + `\n` +
+            'Source XML: ' + matchSource.toString() + '\n\n' +
 
-The following "New XML" is similar to "Source XML".
+            'The following "New XML" is similar to "Source XML".\n\n' +
 
-New XML: ` + originalSource.toString() + `
+            'New XML: ' + originalSource.toString() + '\n\n' +
 
-Translate the content of "New XML" so that the translation is phrased similarly to the content of "Target XML" but is an accurate translation of "New XML".
-
-Provide only the requested translation in the same XML format as "Target XML" and do not add any additional text. Make sure the translation is valid XML and does not contain any XML errors.`;
-
+            'Translate the content of "New XML" so that the translation is phrased similarly to the content of "Target XML" but is an accurate translation of "New XML".\n' +
+            'Provide only the requested translation in the same XML format as "Target XML" and do not add any additional text. Make sure the translation is valid XML and does not contain any XML errors.';
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,

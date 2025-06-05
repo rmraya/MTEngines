@@ -1,6 +1,6 @@
 # MTEngines
 
-TypeScript library for Machine Translation (MT) engines.
+TypeScript library for Machine Translation (MT) using various engines. It provides a unified interface to interact with different MT and AI services, allowing you to translate text between multiple languages.
 
 Interface `MTEngine` provides these methods:
 
@@ -22,10 +22,11 @@ Interface `MTEngine` provides these methods:
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 ```
 
-All supported engines implement this interface. Methods `fixMatch()` and `fixTags()` are only implemented by `ChatGPTTranslator`, all other engines throw an error when they are called.
+All supported engines implement this interface. Methods `fixMatch()` and `fixTags()` are only implemented by `ChatGPTTranslator` and `AnthropicTranslator`, all other engines throw an error when they are called.
 
 ## Supported Engines
 
+- Anthropic Claude
 - DeepL (Free and Pro)
 - Google Cloud Translation
 - Microsoft Azure Translator Text
