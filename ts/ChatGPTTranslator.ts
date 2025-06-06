@@ -27,6 +27,12 @@ export class ChatGPTTranslator implements MTEngine {
     static readonly GPT_4: string = "gpt-4";
     static readonly GPT_4_TURBO: string = "gpt-4-turbo";
     static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
+    static readonly GPT_o3: string = "o3-mini";
+    static readonly GPT_o1: string = "o1";
+    static readonly GPT_o1_MINI: string = "o1-mini";
+    static readonly GPT_o1_PRO: string = "o1-pro";
+    static readonly GPT_o4_MINI: string = "o4-mini";
+
 
     openai: OpenAI;
     srcLang: string;
@@ -146,11 +152,25 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        return [ChatGPTTranslator.GPT_4o,
-        ChatGPTTranslator.GPT_4o_MINI,
-        ChatGPTTranslator.GPT_4,
-        ChatGPTTranslator.GPT_4_TURBO,
-        ChatGPTTranslator.GPT_35_TURBO];
+        let models:string[] = [
+            ChatGPTTranslator.GPT_41,
+            ChatGPTTranslator.GPT_41_MINI,
+            ChatGPTTranslator.GPT_41_NANO,
+            ChatGPTTranslator.GPT_4o,
+            ChatGPTTranslator.GPT_4o_MINI,
+            ChatGPTTranslator.GPT_4,
+            ChatGPTTranslator.GPT_4_TURBO,
+            ChatGPTTranslator.GPT_35_TURBO,
+            ChatGPTTranslator.GPT_o3,
+            ChatGPTTranslator.GPT_o1,
+            ChatGPTTranslator.GPT_o1_MINI,
+            ChatGPTTranslator.GPT_o1_PRO,
+            ChatGPTTranslator.GPT_o4_MINI
+        ];
+        models.sort((a: string, b: string) => {
+            return a.localeCompare(b, 'en');
+        });
+        return models;
     }
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {

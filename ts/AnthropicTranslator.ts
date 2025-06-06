@@ -63,15 +63,21 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        return [AnthropicTranslator.CLAUDE_OPUS_4,
-        AnthropicTranslator.CLAUDE_SONNET_4,
-        AnthropicTranslator.CLAUDE_SONNET_3_7,
-        AnthropicTranslator.CLAUDE_SONNET_3_7,
-        AnthropicTranslator.CLAUDE_HAIKU_3_5,
-        AnthropicTranslator.CLAUDE_SONNET_3_5,
-        AnthropicTranslator.CLAUDE_HAIKU_3_0,
-        AnthropicTranslator.CLAUDE_SONNET_3_0,
-        AnthropicTranslator.CLAUDE_OPUS_3_0];
+        let models: string[] = [
+            AnthropicTranslator.CLAUDE_OPUS_4,
+            AnthropicTranslator.CLAUDE_SONNET_4,
+            AnthropicTranslator.CLAUDE_SONNET_3_7,
+            AnthropicTranslator.CLAUDE_SONNET_3_7,
+            AnthropicTranslator.CLAUDE_HAIKU_3_5,
+            AnthropicTranslator.CLAUDE_SONNET_3_5,
+            AnthropicTranslator.CLAUDE_HAIKU_3_0,
+            AnthropicTranslator.CLAUDE_SONNET_3_0,
+            AnthropicTranslator.CLAUDE_OPUS_3_0
+        ];
+        models.sort((a: string, b: string) => {
+            return a.localeCompare(b, 'en');
+        });
+        return models;
     }
 
     getLanguages(): Promise<string[]> {
