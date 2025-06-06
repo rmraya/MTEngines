@@ -136,10 +136,37 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getMTMatch(source: XMLElement): Promise<MTMatch> {
-        return new Promise<MTMatch>((resolve, reject) => {
-            this.translate(MTUtils.plainText(source)).then((translation: string) => {
-                let target: XMLElement = new XMLElement('target');
-                target.addString(translation);
+        let propmt: string = 'Given the following <source> XML element from an XLIFF 2.1 document:\n\n' +
+            source.toString() + '\n\n' +
+            'Generate the corresponding <target> XML element that would accurately translate the text from ' +
+            LanguageUtils.getLanguage(this.srcLang, 'en').description + ' to ' +
+            LanguageUtils.getLanguage(this.tgtLang, 'en').description + '.\n\n' +
+            'Provide the <target> XML element in the same format as the <source> element, preserving the structure and attributes.\n\n' +
+            'Ensure that the translation is accurate and maintains the meaning, tone, and nuance of the original text.\n\n' +
+            'Provide only the <target> XML element without any additional commentary or explanation.';
+        return new Promise<MTMatch>(async (resolve, reject) => {
+            this.openai.chat.completions.create({
+                model: this.model,
+                messages: [
+                    { "role": "system", "content": this.getRole() },
+                    { "role": "user", "content": propmt }
+                ]
+            }).then((completion: any) => {
+                let choices: any[] = completion.choices;
+                let translation: string = choices[0].message.content;
+                if (translation.startsWith('\n\n')) {
+                    translation = translation.substring(2);
+                }
+                while (translation.startsWith('"') && translation.endsWith('"')) {
+                    translation = translation.substring(1, translation.length - 1);
+                }
+                if (translation.startsWith('```xml') && translation.endsWith('```')) {
+                    translation = translation.substring(6, translation.length - 3).trim();
+                }
+                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                    translation = '<target>' + translation + '</target>';
+                }
+                let target: XMLElement = MTUtils.toXMLElement(translation);
                 resolve(new MTMatch(source, target, this.getShortName()));
             }).catch((error: Error) => {
                 reject(error);
@@ -148,11 +175,11 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     handlesTags(): boolean {
-        return false;
+        return true;
     }
 
     getModels(): string[] {
-        let models:string[] = [
+        let models: string[] = [
             ChatGPTTranslator.GPT_41,
             ChatGPTTranslator.GPT_41_MINI,
             ChatGPTTranslator.GPT_41_NANO,
