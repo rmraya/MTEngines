@@ -11,8 +11,7 @@
  *******************************************************************************/
 
 import { OpenAI } from "openai";
-import { Language, LanguageUtils } from "typesbcp47";
-import { DOMBuilder, SAXParser, XMLElement, XMLDocument } from "typesxml";
+import { DOMBuilder, SAXParser, XMLDocument, XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine";
 import { MTMatch } from "./MTMatch";
 import { MTUtils } from "./MTUtils";
@@ -37,13 +36,13 @@ export class ChatGPTTranslator implements MTEngine {
     openai: OpenAI;
     srcLang: string;
     tgtLang: string;
-    apiKey: string;
-    model: string;
+    model: string = ChatGPTTranslator.GPT_4o_MINI; // Default model
 
     constructor(apiKey: string, model?: string) {
         this.openai = new OpenAI({ apiKey: apiKey });
-        this.apiKey = apiKey;
-        this.model = model ? model : ChatGPTTranslator.GPT_4o_MINI;
+        if (model) {
+            this.model = model;
+        }
     }
 
     getName(): string {
@@ -54,39 +53,12 @@ export class ChatGPTTranslator implements MTEngine {
         return 'ChatGPT';
     }
 
-    getRole(): string {
-        let srcLanguage: string = LanguageUtils.getLanguage(this.srcLang, 'en').description;
-        let tgetLanguage: string = LanguageUtils.getLanguage(this.tgtLang, 'en').description;
-        return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + ' with expert knowledge of XLIFF 2.1 formatting and best practices.';
-    }
-
-    getLanguages(): Promise<string[]> {
-        // ChatGPT should support any language, but we'll limit it to 
-        // the common ones supported by the TypesBCP47 library
-        return new Promise<string[]>((resolve, reject) => {
-            try {
-                let languages: Language[] = LanguageUtils.getCommonLanguages('en');
-                let result: string[] = [];
-                for (let language of languages) {
-                    result.push(language.code);
-                }
-                resolve(result);
-            } catch (error) {
-                if (error instanceof Error) {
-                    reject(error);
-                    return;
-                }
-                reject(error as Error);
-            }
-        });
-    }
-
     getSourceLanguages(): Promise<string[]> {
-        return this.getLanguages();
+        return MTUtils.getLanguages();
     }
 
     getTargetLanguages(): Promise<string[]> {
-        return this.getLanguages();
+        return MTUtils.getLanguages();
     }
 
     setSourceLanguage(lang: string): void {
@@ -106,14 +78,12 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
-        let propmt: string = 'Accurately translate the text enclosed in triple quotes from ' +
-            LanguageUtils.getLanguage(this.srcLang, 'en').description + ' to ' + LanguageUtils.getLanguage(this.tgtLang, 'en').description +
-            ' preserving the meaning, tone, and nuance of the original text. """' + source + '"""';
+        let propmt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": this.getRole() },
+                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {
@@ -136,19 +106,12 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getMTMatch(source: XMLElement): Promise<MTMatch> {
-        let propmt: string = 'Given the following <source> XML element from an XLIFF 2.1 document:\n\n' +
-            source.toString() + '\n\n' +
-            'Generate the corresponding <target> XML element that would accurately translate the text from ' +
-            LanguageUtils.getLanguage(this.srcLang, 'en').description + ' to ' +
-            LanguageUtils.getLanguage(this.tgtLang, 'en').description + '.\n\n' +
-            'Provide the <target> XML element in the same format as the <source> element, preserving the structure and attributes.\n\n' +
-            'Ensure that the translation is accurate and maintains the meaning, tone, and nuance of the original text.\n\n' +
-            'Provide only the <target> XML element without any additional commentary or explanation.';
-        return new Promise<MTMatch>(async (resolve, reject) => {
+        let propmt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang);
+        return new Promise<MTMatch>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": this.getRole() },
+                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {
@@ -212,22 +175,12 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     fixTranslation(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<string> {
-        let propmt: string = this.getRole() + 'The following "Target XML" is the translation of "Source XML".\n\n' +
-
-            'Target XML: ' + matchTarget.toString() + `\n` +
-            'Source XML: ' + matchSource.toString() + '\n\n' +
-
-            'The following "New XML" is similar to "Source XML".\n\n' +
-
-            'New XML: ' + originalSource.toString() + '\n\n' +
-
-            'Translate the content of "New XML" so that the translation is phrased similarly to the content of "Target XML" but is an accurate translation of "New XML".\n' +
-            'Provide only the requested translation in the same XML format as "Target XML" and do not add any additional text. Make sure the translation is valid XML and does not contain any XML errors.';
+        let propmt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": this.getRole() },
+                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {
@@ -261,29 +214,12 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-        let lang: string = this.tgtLang.indexOf('-') > 0 ? this.tgtLang.substring(0, this.tgtLang.indexOf('-')) : this.tgtLang;
-        let tgetLanguage: string = LanguageUtils.getLanguage(lang, 'en').description;
-        let propmt: string = 'Given the following <source> and <target> XML elements from an XLIFF 2.1 document:\n\n' +
-
-            source.toString() + '\n' +
-            target.toString() + '\n\n' +
-
-            'The <target> element is missing required inline elements.\n' +
-
-            'Your task is to revise the <target> so that:\n' +
-            '	•	All inline elements from the <source> appear in the corrected <target>, in the appropriate grammatical and semantic positions for accurate' + tgetLanguage + '.\n' +
-            '	•	The translation remains fluent and faithful to the source meaning.\n' +
-            '	•	Do not add, omit, or reorder any inline elements.\n' +
-            '	•	Do not change the Japanese text.\n' +
-            '	•	Do not include any explanation or comments, return only the corrected <target> element.\n' +
-
-            'Provide only the corrected <target> element in your response.\n';
-
+        let propmt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
                 messages: [
-                    { "role": "system", "content": this.getRole() },
+                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
                 ]
             }).then((completion: any) => {

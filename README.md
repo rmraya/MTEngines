@@ -22,7 +22,7 @@ Interface `MTEngine` provides these methods:
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 ```
 
-All supported engines implement this interface. Methods `fixMatch()` and `fixTags()` are only implemented by `ChatGPTTranslator` and `AnthropicTranslator`, all other engines throw an error when they are called.
+All supported engines implement the `MTEngine` interface. Methods `fixMatch()` and `fixTags()` are only implemented by AI-based engines (`ChatGPTTranslator` and `AnthropicTranslator`), all other engines throw an error when they are called.
 
 ## Supported Engines
 

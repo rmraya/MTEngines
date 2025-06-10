@@ -143,9 +143,7 @@ export class GoogleTranslator implements MTEngine {
 
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
-        return new Promise<MTMatch>((resolve, reject) => {
-            reject(new Error('fixMatch not implemented for Google Cloud Translation'));
-        });
+       return Promise.reject(new Error('fixMatch not implemented for Google Cloud Translation'));
     }
 
     fixesTags(): boolean {
@@ -153,8 +151,6 @@ export class GoogleTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-        return new Promise<XMLElement>((resolve, reject) => {
-            reject(new Error('fixTags not implemented for Google Cloud Translation'));
-        });
+        return Promise.reject(new Error('fixTags not implemented for Google Cloud Translation'));
     }
 }

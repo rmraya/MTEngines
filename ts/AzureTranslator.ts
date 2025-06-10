@@ -124,9 +124,7 @@ export class AzureTranslator implements MTEngine {
     }
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
-        return new Promise<MTMatch>((resolve, reject) => {
-            reject(new Error('fixMatch not implemented for Azure Translator'));
-        });
+        return Promise.reject(new Error('fixMatch not implemented for Azure Translator'));
     }
 
     fixesTags(): boolean {
@@ -134,8 +132,6 @@ export class AzureTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-        return new Promise<XMLElement>((resolve, reject) => {
-            reject(new Error('fixTags not implemented for Azure Translator'));
-        });
+        return Promise.reject(new Error('fixTags not implemented for Azure Translator'));
     }
 }

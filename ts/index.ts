@@ -16,8 +16,9 @@ export { ChatGPTTranslator } from './ChatGPTTranslator';
 export { Constants } from './Constants';
 export { DeepLTranslator } from './DeepLTranslator';
 export { GoogleTranslator } from './GoogleTranslator';
+export { ModernMTTranslator } from './ModernMTTranslator';
 export { MTEngine } from './MTEngine';
 export { MTMatch } from './MTMatch';
 export { MTUtils } from './MTUtils';
-export { ModernMTTranslator } from './ModernMTTranslator';
 export { YandexTranslator } from './YandexTranslator';
+

@@ -149,9 +149,7 @@ export class YandexTranslator implements MTEngine {
     }
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
-        return new Promise<MTMatch>((resolve, reject) => {
-            reject(new Error('fixMatch not implemented for Yandex Translate API'));
-        });
+       return Promise.reject(new Error('fixMatch not implemented for Yandex Translate API'));
     }
 
     fixesTags(): boolean {
@@ -159,8 +157,6 @@ export class YandexTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-        return new Promise<XMLElement>((resolve, reject) => {
-            reject(new Error('fixTags not implemented for Yandex Translate API'));
-        });
+        return Promise.reject(new Error('fixTags not implemented for Yandex Translate API'));
     }
 }
