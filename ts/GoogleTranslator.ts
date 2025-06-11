@@ -121,7 +121,7 @@ export class GoogleTranslator implements MTEngine {
         return result;
     }
 
-    getMTMatch(source: XMLElement): Promise<MTMatch> {
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
             this.translate(MTUtils.plainText(source)).then((translation: string) => {
                 let target: XMLElement = new XMLElement('target');

@@ -119,7 +119,7 @@ export class DeepLTranslator implements MTEngine {
         });
     }
 
-    getMTMatch(source: XMLElement): Promise<MTMatch> {
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
             let content: string = MTUtils.getElementContent(source);
             this.translate(content).then((translation: string) => {

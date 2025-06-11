@@ -1,7 +1,7 @@
 {
   "name": "mtengines",
   "productName": "MTEngines",
-  "version": "2.5.0",
+  "version": "3.0.0",
   "description": "Machine Translation (MT) library written in TypeScript",
   "keywords": [
     "Machine Translation",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.53.0",
-    "openai": "^5.2.0",
+    "openai": "^5.3.0",
     "typesbcp47": "1.5.5",
     "typesxml": "1.7.0"
   }

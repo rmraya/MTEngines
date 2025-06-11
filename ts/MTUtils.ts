@@ -55,36 +55,44 @@ export class MTUtils {
             '""" \n\n Provide only the requested translation without any additional commentary or explanation.';;
     }
 
-    static generatePrompt(source: XMLElement, srcLang: string, tgtLang: string): string {
-        let propmt: string = 'Given the following <source> XML element from an XLIFF 2.1 document:\n\n' +
-            source.toString() + '\n\n' +
-            'Generate the corresponding <target> XML element that would accurately translate the text from ' +
-            LanguageUtils.getLanguage(srcLang, 'en').description + ' to ' +
-            LanguageUtils.getLanguage(tgtLang, 'en').description + '.\n\n' +
-            'Provide the <target> XML element in the same format as the <source> element, preserving the structure and attributes.\n\n' +
-            'Ensure that the translation is accurate and maintains the meaning, tone, and nuance of the original text.\n\n' +
-            'Provide only the <target> XML element without any additional commentary or explanation.';
+    static generatePrompt(source: XMLElement, srcLang: string, tgtLang: string, terms: { source: string, target: string }[]): string {
+        let propmt: string = 'Your task is to translate an XLIFF 2.1 `<source>` XML element into a `<target>` XML element.\n\n' +
+            'Given the following `<source>` XML element:\n\n```xml\n' +
+            source.toString() + '\n```\n\n' +
+            'Translate the content of the `<source>` element from ' + LanguageUtils.getLanguage(srcLang, 'en').description +
+            ' into ' + LanguageUtils.getLanguage(tgtLang, 'en').description +
+            '.\n\nRequirements:\n\n' +
+            '1. Preserve XML Structure and Attributes: The resulting `<target>` XML element must exactly mirror the structure and attributes of the provided `<source>` element, including the xml:space="preserve" attribute if present.\n' +
+            '2. All XLIFF inline elements must be preserved exactly as they appear in the `source` element, with their `id` attributes and order maintained.\n' +
+            '3. Accurate and Nuanced Translation: The ' + LanguageUtils.getLanguage(tgtLang, 'en').description + ' translation must preserve the original meaning, tone, and nuance.\n' +
+            (terms.length > 0 ? '4. Apply Terminology Mapping: Use the following term mapping, making appropriate gender and pluralization adjustments:\n\n```json\n' +
+                JSON.stringify(terms, null, 2) + '\n```\n\n' : '') +
+
+            'Output:\n\n' +
+            'Provide only the complete `<target>` XML element. Do not include any surrounding XML, additional commentary, or explanations.\n\n' +
+            'Expected Output Format:\n\n```xml\n' +
+            '<target xml:space="preserve"> ... </target>\n```';
         return propmt;
     }
 
     static fixTagsPrompt(source: XMLElement, target: XMLElement, srcLang: string, tgtLang: string): string {
         let lang: string = tgtLang.indexOf('-') > 0 ? tgtLang.substring(0, tgtLang.indexOf('-')) : tgtLang;
         let tgetLanguage: string = LanguageUtils.getLanguage(lang, 'en').description;
-        return 'Given the following <source> and <target> XML elements from an XLIFF 2.1 document:\n\n' +
+        return 'Given the following `<source>` and `<target>` XML elements from an XLIFF 2.1 document:\n\n```xml\n' +
 
             source.toString() + '\n' +
-            target.toString() + '\n\n' +
+            target.toString() + '\n```\n\n' +
 
-            'The <target> element is missing required inline elements.\n' +
+            'The `<target>` element is missing required inline elements.\n' +
 
-            'Your task is to revise the <target> so that:\n' +
-            '	•	All inline elements from the <source> appear in the corrected <target>, in the appropriate grammatical and semantic positions for accurate' + tgetLanguage + '.\n' +
+            'Your task is to revise the `<target>` so that:\n' +
+            '	•	All inline elements from the `<source>` appear in the corrected `<target>`, in the appropriate grammatical and semantic positions for accurate' + tgetLanguage + '.\n' +
             '	•	The translation remains fluent and faithful to the source meaning.\n' +
             '	•	Do not add, omit, or reorder any inline elements.\n' +
-            '	•	Do not change the Japanese text.\n' +
-            '	•	Do not include any explanation or comments, return only the corrected <target> element.\n' +
+            '	•	Do not change the ' + lang + ' text.\n' +
+            '	•	Do not include any explanation or comments, return only the corrected `<target>` element.\n' +
 
-            'Provide only the corrected <target> element in your response.\n';
+            'Provide only the corrected `<target>` element in your response.\n';
     }
 
     static fixMatchPrompt(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): string {

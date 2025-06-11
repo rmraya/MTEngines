@@ -103,7 +103,7 @@ export class AnthropicTranslator implements MTEngine {
             this.createMessage(propmt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
-                let translation: string = jsonObject.content[0].text;
+                let translation: string = jsonObject.content[0].text.trim();
                 if (translation.startsWith('"""') && translation.endsWith('"""')) {
                     translation = translation.substring(3, translation.length - 3).trim();
                 }
@@ -114,13 +114,19 @@ export class AnthropicTranslator implements MTEngine {
         });
     }
 
-    getMTMatch(source: XMLElement): Promise<MTMatch> {
-        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.generatePrompt(source, this.srcLang, this.tgtLang);
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
+        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
             this.createMessage(propmt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
-                let translation: string = jsonObject.content[0].text;
+                let translation: string = jsonObject.content[0].text.trim();
+                if (translation.startsWith('```xml') && translation.endsWith('```')) {
+                    translation = translation.substring(6, translation.length - 3).trim();
+                }
+                if (translation.startsWith('```') && translation.endsWith('```')) {
+                    translation = translation.substring(3, translation.length - 3).trim();
+                }
                 let target: XMLElement = MTUtils.toXMLElement(translation);
                 if (source.hasAttribute('xml:space')) {
                     target.setAttribute(source.getAttribute('xml:space'));

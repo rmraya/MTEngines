@@ -24,7 +24,7 @@ export interface MTEngine {
     setTargetLanguage(lang: string): void;
     getTargetLanguage(): string;
     translate(source: string): Promise<string>;
-    getMTMatch(source: XMLElement): Promise<MTMatch>;
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch>;
     handlesTags(): boolean;
     fixesMatches(): boolean;
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch>;

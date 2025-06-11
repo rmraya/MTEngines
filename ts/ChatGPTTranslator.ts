@@ -105,8 +105,8 @@ export class ChatGPTTranslator implements MTEngine {
         });
     }
 
-    getMTMatch(source: XMLElement): Promise<MTMatch> {
-        let propmt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang);
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
+        let propmt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model,
@@ -116,7 +116,7 @@ export class ChatGPTTranslator implements MTEngine {
                 ]
             }).then((completion: any) => {
                 let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+                let translation: string = choices[0].message.content.trim();
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -125,6 +125,9 @@ export class ChatGPTTranslator implements MTEngine {
                 }
                 if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
+                }
+                if (translation.startsWith('```') && translation.endsWith('```')) {
+                    translation = translation.substring(3, translation.length - 3).trim();
                 }
                 if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';

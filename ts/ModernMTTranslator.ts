@@ -113,7 +113,7 @@ export class ModernMTTranslator implements MTEngine {
         });
     }
 
-    getMTMatch(source: XMLElement): Promise<MTMatch> {
+    getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
             this.translate(MTUtils.getElementContent(source)).then((translation: string) => {
                 let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
