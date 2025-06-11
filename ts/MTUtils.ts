@@ -66,7 +66,7 @@ export class MTUtils {
             '2. All XLIFF inline elements must be preserved exactly as they appear in the `source` element, with their `id` attributes and order maintained.\n' +
             '3. Accurate and Nuanced Translation: The ' + LanguageUtils.getLanguage(tgtLang, 'en').description + ' translation must preserve the original meaning, tone, and nuance.\n' +
             (terms.length > 0 ? '4. Apply Terminology Mapping: Use the following term mapping, making appropriate gender and pluralization adjustments:\n\n```json\n' +
-                JSON.stringify(terms, null, 2) + '\n```\n\n' : '') +
+                JSON.stringify(terms, null, 2) + '\n```\n\n' : '\n') +
 
             'Output:\n\n' +
             'Provide only the complete `<target>` XML element. Do not include any surrounding XML, additional commentary, or explanations.\n\n' +
