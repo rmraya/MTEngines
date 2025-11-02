@@ -18,22 +18,42 @@ import { MTUtils } from "./MTUtils";
 
 export class AnthropicTranslator implements MTEngine {
 
+    // Available Models
+    static readonly AVAILABLE_MODELS: [string, string][] = [
+        ['claude-haiku-4-5-20251001', 'Claude Haiku 4.5'],
+        ['claude-sonnet-4-5-20250929', 'Claude Sonnet 4.5'],
+        ['claude-opus-4-1-20250805', 'Claude Opus 4.1'],
+        ['claude-opus-4-20250514', 'Claude Opus 4'],
+        ['claude-sonnet-4-20250514', 'Claude Sonnet 4'],
+        ['claude-3-7-sonnet-20250219', 'Claude Sonnet 3.7'],
+        ['claude-3-5-haiku-20241022', 'Claude Haiku 3.5'],
+        ['claude-3-haiku-20240307', 'Claude Haiku 3'],
+        ['claude-3-opus-20240229', 'Claude Opus 3']
+    ]
+
+    // Claude 4.5 Models
+    static readonly CLAUDE_HAIKU_4_5: string = 'claude-haiku-4-5-20251001';
+    static readonly CLAUDE_SONNET_4_5: string = 'claude-sonnet-4-5-20250929';
+
+    // Claude 4.1 Models
+    static readonly CLAUDE_OPUS_4_1: string = 'claude-opus-4-1-20250805'
+
     // Claude 4 Models
-    static readonly CLAUDE_OPUS_4: string = "claude-opus-4-0";
-    static readonly CLAUDE_SONNET_4: string = "claude-sonnet-4-0";
+    static readonly CLAUDE_OPUS_4: string = 'claude-opus-4-20250514';
+    static readonly CLAUDE_SONNET_4: string = 'claude-sonnet-4-20250514';
 
     // Claude 3.7 Models
 
-    static readonly CLAUDE_SONNET_3_7: string = "claude-3-7-sonnet-latest";
+    static readonly CLAUDE_SONNET_3_7: string = 'claude-3-7-sonnet-20250219';
 
     // Claude 3.5 Models
-    static readonly CLAUDE_HAIKU_3_5: string = "claude-3-5-haiku-latest";
-    static readonly CLAUDE_SONNET_3_5: string = "claude-3-5-sonnet-latest";
+    static readonly CLAUDE_HAIKU_3_5: string = 'claude-3-5-haiku-20241022';
+    static readonly CLAUDE_SONNET_3_5: string = 'claude-3-5-sonnet-20241022';
 
     // Claude 3 Models
-    static readonly CLAUDE_HAIKU_3_0: string = "claude-3-haiku-20240307";
+    static readonly CLAUDE_HAIKU_3_0: string = 'claude-3-haiku-20240307';
+    static readonly CLAUDE_OPUS_3_0: string = 'claude-3-opus-20240229';
     static readonly CLAUDE_SONNET_3_0: string = "claude-3-sonnet-20240229";
-    static readonly CLAUDE_OPUS_3_0: string = "claude-3-opus-latest";
 
     model: string = AnthropicTranslator.CLAUDE_SONNET_3_5; // Default model
     anthropic: Anthropic;
@@ -57,9 +77,11 @@ export class AnthropicTranslator implements MTEngine {
 
     getModels(): string[] {
         let models: string[] = [
+            AnthropicTranslator.CLAUDE_HAIKU_4_5,
+            AnthropicTranslator.CLAUDE_SONNET_4_5,
+            AnthropicTranslator.CLAUDE_OPUS_4_1,
             AnthropicTranslator.CLAUDE_OPUS_4,
             AnthropicTranslator.CLAUDE_SONNET_4,
-            AnthropicTranslator.CLAUDE_SONNET_3_7,
             AnthropicTranslator.CLAUDE_SONNET_3_7,
             AnthropicTranslator.CLAUDE_HAIKU_3_5,
             AnthropicTranslator.CLAUDE_SONNET_3_5,
@@ -192,5 +214,25 @@ export class AnthropicTranslator implements MTEngine {
                 reject(error);
             });
         });
+    }
+
+    async getAvailableModels(): Promise<string[][]> {
+        try {
+            const response = await fetch('https://api.anthropic.com/v1/models', {
+                method: 'GET',
+                headers: {
+                    'x-api-key': this.anthropic.apiKey,
+                    'anthropic-version': '2023-06-01'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.data.map((model: any) => [model.id, model.display_name]);
+        } catch (error) {
+            console.error('Error fetching available models:', error);
+            throw error;
+        }
     }
 }

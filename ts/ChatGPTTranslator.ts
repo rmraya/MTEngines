@@ -18,25 +18,36 @@ import { MTUtils } from "./MTUtils";
 
 export class ChatGPTTranslator implements MTEngine {
 
-    static readonly GPT_41: string = "gpt-4.1";
-    static readonly GPT_41_MINI: string = "gpt-4.1-mini";
-    static readonly GPT_41_NANO: string = "gpt-4.1-nano";
+
+    // Available Models (text completions only)
+    static readonly AVAILABLE_MODELS: [string, string][] = [
+        ['gpt-4o', 'gpt-4o'],
+        ['gpt-4', 'gpt-4'],
+        ['gpt-4-turbo', 'gpt-4-turbo'],
+        ['gpt-3.5-turbo', 'gpt-3.5-turbo'],
+        ['gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k'],
+        ['gpt-3.5-turbo-instruct', 'gpt-3.5-turbo-instruct'],
+        ['gpt-4-turbo-preview', 'gpt-4-turbo-preview'],
+        ['gpt-4o-mini', 'gpt-4o-mini'],
+        ['chatgpt-4o-latest', 'chatgpt-4o-latest']
+    ]
+
+    // Only keep constants for models in AVAILABLE_MODELS
     static readonly GPT_4o: string = "gpt-4o";
-    static readonly GPT_4o_MINI: string = "gpt-4o-mini";
     static readonly GPT_4: string = "gpt-4";
     static readonly GPT_4_TURBO: string = "gpt-4-turbo";
     static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
-    static readonly GPT_o3: string = "o3-mini";
-    static readonly GPT_o1: string = "o1";
-    static readonly GPT_o1_MINI: string = "o1-mini";
-    static readonly GPT_o1_PRO: string = "o1-pro";
-    static readonly GPT_o4_MINI: string = "o4-mini";
+    static readonly GPT_35_TURBO_16K: string = "gpt-3.5-turbo-16k";
+    static readonly GPT_35_TURBO_INSTRUCT: string = "gpt-3.5-turbo-instruct";
+    static readonly GPT_4_TURBO_PREVIEW: string = "gpt-4-turbo-preview";
+    static readonly GPT_4O_MINI: string = "gpt-4o-mini";
+    static readonly CHATGPT_4O_LATEST: string = "chatgpt-4o-latest";
 
 
     openai: OpenAI;
     srcLang: string;
     tgtLang: string;
-    model: string = ChatGPTTranslator.GPT_4o_MINI; // Default model
+    model: string = ChatGPTTranslator.GPT_4O_MINI; // Default model
 
     constructor(apiKey: string, model?: string) {
         this.openai = new OpenAI({ apiKey: apiKey });
@@ -145,20 +156,16 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getModels(): string[] {
-        let models: string[] = [
-            ChatGPTTranslator.GPT_41,
-            ChatGPTTranslator.GPT_41_MINI,
-            ChatGPTTranslator.GPT_41_NANO,
+        const models = [
             ChatGPTTranslator.GPT_4o,
-            ChatGPTTranslator.GPT_4o_MINI,
             ChatGPTTranslator.GPT_4,
             ChatGPTTranslator.GPT_4_TURBO,
             ChatGPTTranslator.GPT_35_TURBO,
-            ChatGPTTranslator.GPT_o3,
-            ChatGPTTranslator.GPT_o1,
-            ChatGPTTranslator.GPT_o1_MINI,
-            ChatGPTTranslator.GPT_o1_PRO,
-            ChatGPTTranslator.GPT_o4_MINI
+            ChatGPTTranslator.GPT_35_TURBO_16K,
+            ChatGPTTranslator.GPT_35_TURBO_INSTRUCT,
+            ChatGPTTranslator.GPT_4_TURBO_PREVIEW,
+            ChatGPTTranslator.GPT_4O_MINI,
+            ChatGPTTranslator.CHATGPT_4O_LATEST
         ];
         models.sort((a: string, b: string) => {
             return a.localeCompare(b, 'en');
@@ -251,5 +258,15 @@ export class ChatGPTTranslator implements MTEngine {
                 reject(error);
             });
         });
+    }
+
+    async getAvailableModels(): Promise<string[][]> {
+        try {
+            const response = await this.openai.models.list();
+            return response.data.map((model: any) => [model.id, model.id]);
+        } catch (error) {
+            console.error('Error fetching available models:', error);
+            throw error;
+        }
     }
 }
