@@ -11,14 +11,14 @@
  *******************************************************************************/
 
 import { XMLElement } from "typesxml";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 export class AzureTranslator implements MTEngine {
 
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
     apiKey: string;
 
     constructor(apiKey: string) {
@@ -58,6 +58,9 @@ export class AzureTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let url: string = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=' + this.srcLang + '&to=' + this.tgtLang;
         let params: any = [{
             "Text": source

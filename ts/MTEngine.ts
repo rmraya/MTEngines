@@ -11,7 +11,7 @@
  *******************************************************************************/
 
 import { XMLElement } from "typesxml";
-import { MTMatch } from "./MTMatch";
+import { MTMatch } from "./MTMatch.js";
 
 export interface MTEngine {
 

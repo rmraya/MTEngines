@@ -10,7 +10,7 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 import { Language, LanguageUtils } from "typesbcp47";
-import { TextNode, XMLElement, SAXParser, DOMBuilder } from "typesxml";
+import { DOMBuilder, SAXParser, TextNode, XMLDocument, XMLElement } from "typesxml";
 
 export class MTUtils {
 
@@ -39,32 +39,61 @@ export class MTUtils {
         let builder: DOMBuilder = new DOMBuilder();
         parser.setContentHandler(builder);
         parser.parseString(text);
-        return builder.getDocument().getRoot();
+        let document: XMLDocument | undefined = builder.getDocument();
+        if (document) {
+            let root: XMLElement | undefined = document.getRoot();
+            if (root) {
+                return root;
+            }
+        }
+        throw new Error('Could not parse XML element from text: ' + text);
     }
 
     static getRole(srcLang: string, tgtLang: string): string {
-        let srcLanguage: string = LanguageUtils.getLanguage(srcLang, 'en').description;
-        let tgetLanguage: string = LanguageUtils.getLanguage(tgtLang, 'en').description;
-        return 'You are an expert translator from ' + srcLanguage + ' to ' + tgetLanguage + ' with expert knowledge of XLIFF 2.1 formatting and best practices.';
+        let srcLanguage: Language | undefined = LanguageUtils.getLanguage(srcLang, 'en');
+        if (!srcLanguage) {
+            throw new Error('Language not found for code: ' + srcLang);
+        }
+        let tgtLanguage: Language | undefined = LanguageUtils.getLanguage(tgtLang, 'en');
+        if (!tgtLanguage) {
+            throw new Error('Language not found for code: ' + tgtLang);
+        }
+        return 'You are an expert translator from ' + srcLanguage.description + ' to ' + tgtLanguage.description + ' with expert knowledge of XLIFF 2.1 formatting and best practices.';
     }
 
     static translatePropmt(source: string, srcLang: string, tgtLang: string): string {
+        let sourceLanguage: Language | undefined = LanguageUtils.getLanguage(srcLang, 'en');
+        if (!sourceLanguage) {
+            throw new Error('Language not found for code: ' + srcLang);
+        }
+        let targetLanguage: Language | undefined = LanguageUtils.getLanguage(tgtLang, 'en');
+        if (!targetLanguage) {
+            throw new Error('Language not found for code: ' + tgtLang);
+        }
         return 'Accurately translate the text enclosed in triple quotes from ' +
-            LanguageUtils.getLanguage(srcLang, 'en').description + ' to ' + LanguageUtils.getLanguage(tgtLang, 'en').description +
+            sourceLanguage.description + ' to ' + targetLanguage.description +
             ' preserving the meaning, tone, and nuance of the original text.\n\n """' + source +
             '""" \n\n Provide only the requested translation without any additional commentary or explanation.';;
     }
 
     static generatePrompt(source: XMLElement, srcLang: string, tgtLang: string, terms: { source: string, target: string }[]): string {
+        let sourceLanguage: Language | undefined = LanguageUtils.getLanguage(srcLang, 'en');
+        if (!sourceLanguage) {
+            throw new Error('Language not found for code: ' + srcLang);
+        }
+        let targetLanguage: Language | undefined = LanguageUtils.getLanguage(tgtLang, 'en');
+        if (!targetLanguage) {
+            throw new Error('Language not found for code: ' + tgtLang);
+        }
         let propmt: string = 'Your task is to translate an XLIFF 2.1 `<source>` XML element into a `<target>` XML element.\n\n' +
             'Given the following `<source>` XML element:\n\n```xml\n' +
             source.toString() + '\n```\n\n' +
-            'Translate the content of the `<source>` element from ' + LanguageUtils.getLanguage(srcLang, 'en').description +
-            ' into ' + LanguageUtils.getLanguage(tgtLang, 'en').description +
+            'Translate the content of the `<source>` element from ' + sourceLanguage.description +
+            ' into ' + targetLanguage.description +
             '.\n\nRequirements:\n\n' +
             '1. Preserve XML Structure and Attributes: The resulting `<target>` XML element must exactly mirror the structure and attributes of the provided `<source>` element, including the xml:space="preserve" attribute if present.\n' +
             '2. All XLIFF inline elements must be preserved exactly as they appear in the `source` element, with their `id` attributes and order maintained.\n' +
-            '3. Accurate and Nuanced Translation: The ' + LanguageUtils.getLanguage(tgtLang, 'en').description + ' translation must preserve the original meaning, tone, and nuance.\n' +
+            '3. Accurate and Nuanced Translation: The ' + targetLanguage.description + ' translation must preserve the original meaning, tone, and nuance.\n' +
             (terms.length > 0 ? '4. Apply Terminology Mapping: Use the following term mapping, making appropriate gender and pluralization adjustments:\n\n```json\n' +
                 JSON.stringify(terms, null, 2) + '\n```\n\n' : '\n') +
 
@@ -77,7 +106,11 @@ export class MTUtils {
 
     static fixTagsPrompt(source: XMLElement, target: XMLElement, srcLang: string, tgtLang: string): string {
         let lang: string = tgtLang.indexOf('-') > 0 ? tgtLang.substring(0, tgtLang.indexOf('-')) : tgtLang;
-        let tgetLanguage: string = LanguageUtils.getLanguage(lang, 'en').description;
+        let language: Language | undefined = LanguageUtils.getLanguage(lang, 'en');
+        if (!language) {
+            throw new Error('Language not found for code: ' + lang);
+        }
+        let tgetLanguage: string = language.description;
         return 'Given the following `<source>` and `<target>` XML elements from an XLIFF 2.1 document:\n\n```xml\n' +
 
             source.toString() + '\n' +

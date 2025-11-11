@@ -10,17 +10,17 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-import { XMLElement } from "typesxml";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { XMLAttribute, XMLElement } from "typesxml";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 
 export class ModernMTTranslator implements MTEngine {
 
     apiKey: string;
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;
@@ -80,6 +80,9 @@ export class ModernMTTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let json: any = {
             "source": this.srcLang,
             "target": this.tgtLang,
@@ -117,8 +120,9 @@ export class ModernMTTranslator implements MTEngine {
         return new Promise<MTMatch>((resolve, reject) => {
             this.translate(MTUtils.getElementContent(source)).then((translation: string) => {
                 let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
-                if (source.hasAttribute('xml:space')) {
-                    target.setAttribute(source.getAttribute('xml:space'));
+                let space: XMLAttribute | undefined = source.getAttribute('xml:space');
+                if (space) {
+                    target.setAttribute(space);
                 }
                 resolve(new MTMatch(source, target, this.getShortName()));
             }).catch((error: Error) => {
@@ -130,7 +134,7 @@ export class ModernMTTranslator implements MTEngine {
     handlesTags(): boolean {
         return true;
     }
-    
+
     fixesMatches(): boolean {
         return false;
     }

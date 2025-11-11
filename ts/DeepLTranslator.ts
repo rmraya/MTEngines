@@ -11,16 +11,16 @@
  *******************************************************************************/
 
 import { LanguageUtils } from "typesbcp47";
-import { XMLElement } from "typesxml";
-import { Constants } from "./Constants";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { XMLAttribute, XMLElement } from "typesxml";
+import { Constants } from "./Constants.js";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 export class DeepLTranslator implements MTEngine {
 
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
     apiKey: string;
     proPlan: boolean;
     translateUrl: string;
@@ -67,6 +67,9 @@ export class DeepLTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let params: string = "&text=" + encodeURIComponent(source)
             + "&source_lang=" + this.srcLang.toUpperCase()
             + "&target_lang=" + this.tgtLang.toUpperCase()
@@ -107,7 +110,12 @@ export class DeepLTranslator implements MTEngine {
                     let json: any = await response.json();
                     let languages: string[] = [];
                     for (let language of json) {
-                        languages.push(LanguageUtils.normalizeCode(language.language));
+                        if (language.language) {
+                            const code = LanguageUtils.normalizeCode(language.language);
+                            if (code) {
+                                languages.push(code);
+                            }
+                        }
                     }
                     resolve(languages);
                 } else {
@@ -125,8 +133,9 @@ export class DeepLTranslator implements MTEngine {
             this.translate(content).then((translation: string) => {
                 try {
                     let target: XMLElement = MTUtils.toXMLElement('<target>' + translation + '</target>');
-                    if (source.hasAttribute('xml:space')) {
-                        target.setAttribute(source.getAttribute('xml:space'));
+                    let space: XMLAttribute | undefined = source.getAttribute('xml:space');
+                    if (space) {
+                        target.setAttribute(space);
                     }
                     resolve(new MTMatch(source, target, this.getShortName()));
                 } catch (error) {
@@ -145,7 +154,7 @@ export class DeepLTranslator implements MTEngine {
     handlesTags(): boolean {
         return true;
     }
-    
+
     fixesMatches(): boolean {
         return false;
     }
@@ -157,9 +166,9 @@ export class DeepLTranslator implements MTEngine {
     fixesTags(): boolean {
         return false;
     }
-    
+
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-       return Promise.reject(new Error('fixTags not implemented for DeepL API'));
+        return Promise.reject(new Error('fixTags not implemented for DeepL API'));
     }
 
 }

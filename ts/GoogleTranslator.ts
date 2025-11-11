@@ -11,15 +11,15 @@
  *******************************************************************************/
 
 import { XMLElement } from "typesxml";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 export class GoogleTranslator implements MTEngine {
 
     apiKey: string;
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
 
     constructor(apiKey: string) {
         // Google is not reporting language codes for base model, only for nmt
@@ -60,6 +60,9 @@ export class GoogleTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let url = 'https://www.googleapis.com/language/translate/v2?key=' + this.apiKey + '&q=' + encodeURIComponent(source)
             + "&source=" + this.srcLang + "&target=" + this.tgtLang + "&model=nmt";
         return new Promise<string>((resolve, reject) => {

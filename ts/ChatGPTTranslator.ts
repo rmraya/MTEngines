@@ -12,9 +12,9 @@
 
 import { OpenAI } from "openai";
 import { DOMBuilder, SAXParser, XMLDocument, XMLElement } from "typesxml";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 export class ChatGPTTranslator implements MTEngine {
 
@@ -45,8 +45,8 @@ export class ChatGPTTranslator implements MTEngine {
 
 
     openai: OpenAI;
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
     model: string = ChatGPTTranslator.GPT_4O_MINI; // Default model
 
     constructor(apiKey: string, model?: string) {
@@ -89,6 +89,9 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let propmt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
@@ -252,8 +255,17 @@ export class ChatGPTTranslator implements MTEngine {
                 let xmlParser = new SAXParser();
                 xmlParser.setContentHandler(contentHandler);
                 xmlParser.parseString(translation);
-                let newDoc: XMLDocument = contentHandler.getDocument();
-                resolve(newDoc.getRoot());
+                let newDoc: XMLDocument | undefined = contentHandler.getDocument();
+                if (newDoc) {
+                    const targetElement = newDoc.getRoot();
+                    if (targetElement) {
+                        resolve(targetElement);
+                    } else {
+                        reject(new Error('No root element found in fixTags response'));
+                    }
+                } else {
+                    reject(new Error('Error parsing XML from fixTags response'));
+                }
             }).catch((error: Error) => {
                 reject(error);
             });

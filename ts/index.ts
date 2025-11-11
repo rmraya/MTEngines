@@ -10,15 +10,14 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-export { AnthropicTranslator } from './AnthropicTranslator';
-export { AzureTranslator } from './AzureTranslator';
-export { ChatGPTTranslator } from './ChatGPTTranslator';
-export { Constants } from './Constants';
-export { DeepLTranslator } from './DeepLTranslator';
-export { GoogleTranslator } from './GoogleTranslator';
-export { ModernMTTranslator } from './ModernMTTranslator';
-export { MTEngine } from './MTEngine';
-export { MTMatch } from './MTMatch';
-export { MTUtils } from './MTUtils';
-export { YandexTranslator } from './YandexTranslator';
-
+export { AnthropicTranslator } from './AnthropicTranslator.js';
+export { AzureTranslator } from './AzureTranslator.js';
+export { ChatGPTTranslator } from './ChatGPTTranslator.js';
+export { Constants } from './Constants.js';
+export { DeepLTranslator } from './DeepLTranslator.js';
+export { GoogleTranslator } from './GoogleTranslator.js';
+export { ModernMTTranslator } from './ModernMTTranslator.js';
+export type { MTEngine } from './MTEngine.js';
+export { MTMatch } from './MTMatch.js';
+export { MTUtils } from './MTUtils.js';
+export { YandexTranslator } from './YandexTranslator.js';

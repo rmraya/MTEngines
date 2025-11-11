@@ -11,10 +11,10 @@
  *******************************************************************************/
 
 import Anthropic from '@anthropic-ai/sdk';
-import { XMLElement } from "typesxml";
-import { MTEngine } from "./MTEngine";
-import { MTMatch } from "./MTMatch";
-import { MTUtils } from "./MTUtils";
+import { XMLAttribute, XMLElement } from "typesxml";
+import { MTEngine } from "./MTEngine.js";
+import { MTMatch } from "./MTMatch.js";
+import { MTUtils } from "./MTUtils.js";
 
 export class AnthropicTranslator implements MTEngine {
 
@@ -57,8 +57,8 @@ export class AnthropicTranslator implements MTEngine {
 
     model: string = AnthropicTranslator.CLAUDE_SONNET_3_5; // Default model
     anthropic: Anthropic;
-    srcLang: string;
-    tgtLang: string;
+    srcLang: string = '';
+    tgtLang: string = '';
 
     constructor(apiKey: string, model?: string) {
         if (model) {
@@ -120,6 +120,9 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (this.srcLang === '' || this.tgtLang === '') {
+            return Promise.reject(new Error('Source and Target languages must be set before translation.'));
+        }
         let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
             this.createMessage(propmt).then((message: Anthropic.Message) => {
@@ -150,8 +153,9 @@ export class AnthropicTranslator implements MTEngine {
                     translation = translation.substring(3, translation.length - 3).trim();
                 }
                 let target: XMLElement = MTUtils.toXMLElement(translation);
-                if (source.hasAttribute('xml:space')) {
-                    target.setAttribute(source.getAttribute('xml:space'));
+                let space: XMLAttribute | undefined = source.getAttribute('xml:space');
+                if (space) {
+                    target.setAttribute(space);
                 }
                 resolve(new MTMatch(source, target, this.getShortName()));
             }).catch((error: Error) => {
@@ -184,8 +188,9 @@ export class AnthropicTranslator implements MTEngine {
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text;
                 let target: XMLElement = MTUtils.toXMLElement(translation);
-                if (originalSource.hasAttribute('xml:space')) {
-                    target.setAttribute(originalSource.getAttribute('xml:space'));
+                let space: XMLAttribute | undefined = originalSource.getAttribute('xml:space');
+                if (space) {
+                    target.setAttribute(space);
                 }
                 resolve(new MTMatch(originalSource, target, this.getShortName()));
             }).catch((error: Error) => {
@@ -206,8 +211,9 @@ export class AnthropicTranslator implements MTEngine {
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text;
                 let target: XMLElement = MTUtils.toXMLElement(translation);
-                if (source.hasAttribute('xml:space')) {
-                    target.setAttribute(source.getAttribute('xml:space'));
+                let space: XMLAttribute | undefined = source.getAttribute('xml:space');
+                if (space) {
+                    target.setAttribute(space);
                 }
                 resolve(target);
             }).catch((error: Error) => {
@@ -217,6 +223,9 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     async getAvailableModels(): Promise<string[][]> {
+        if (!this.anthropic.apiKey) {
+            return Promise.reject(new Error('API key is not set.'));
+        }
         try {
             const response = await fetch('https://api.anthropic.com/v1/models', {
                 method: 'GET',
