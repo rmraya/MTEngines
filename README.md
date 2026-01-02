@@ -32,7 +32,6 @@ All supported engines implement the `MTEngine` interface. Methods `fixMatch()` a
 - Microsoft Azure Translator Text
 - ModernMT
 - OpenAI ChatGPT
-- Yandex Translate API
 
 ## Installation
 
@@ -40,7 +39,7 @@ All supported engines implement the `MTEngine` interface. Methods `fixMatch()` a
 npm install mtengines
 ```
 
-## Example
+## Examples
 
 ```typescript
 import { GoogleTranslator } from "mtengines";
@@ -60,4 +59,63 @@ class TestGoogle {
 }
 
 new TestGoogle();
+```
+
+`ChatGPTTranslator` and `AnthropicTranslator` need that you either indicate the model to use when creating the instance, or set the model to use by calling the `setModel()` method like in the following example:
+
+```typescript
+import { ChatGPTTranslator } from "mtengines";
+class TestChatGPT {
+
+    constructor() {
+        let translator: ChatGPTTranslator = new ChatGPTTranslator('yourApiKey');
+        translator.setModel("gpt-4");
+        translator.setSourceLanguage("en");
+        translator.setTargetLanguage("fr");
+         translator.translate("Hello World").then((result: string) => {
+            console.log(result);
+        }, (error: any) => {
+            console.error(error);
+        });
+    }
+}
+
+new TestChatGPT();
+```
+
+You can get a list of models supported by `ChatGPTTranslator` and `AnthropicTranslator` by calling the `getModels()` method:
+
+```typescript
+import { AnthropicTranslator } from "mtengines";
+class TestModels {   
+
+    constructor() {
+        let claude: AnthropicTranslator = new AnthropicTranslator('yourApiKey');
+        claude.getAvailableModels().then((models: string[][]) => {
+            console.log('Claude available models:');
+            console.log(models);
+        }, (error) => {
+            console.error(error);
+        });
+    }
+}
+new TestModels();
+```
+
+Expected output:
+
+``` text
+Claude available models:
+[
+  [ 'claude-opus-4-5-20251101', 'Claude Opus 4.5' ],
+  [ 'claude-haiku-4-5-20251001', 'Claude Haiku 4.5' ],
+  [ 'claude-sonnet-4-5-20250929', 'Claude Sonnet 4.5' ],
+  [ 'claude-opus-4-1-20250805', 'Claude Opus 4.1' ],
+  [ 'claude-opus-4-20250514', 'Claude Opus 4' ],
+  [ 'claude-sonnet-4-20250514', 'Claude Sonnet 4' ],
+  [ 'claude-3-7-sonnet-20250219', 'Claude Sonnet 3.7' ],
+  [ 'claude-3-5-haiku-20241022', 'Claude Haiku 3.5' ],
+  [ 'claude-3-haiku-20240307', 'Claude Haiku 3' ],
+  [ 'claude-3-opus-20240229', 'Claude Opus 3' ]
+]
 ```

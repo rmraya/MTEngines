@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 - 2025 Maxprograms.
+ * Copyright (c) 2023-2026 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse   License 1.0
@@ -19,35 +19,10 @@ import { MTUtils } from "./MTUtils.js";
 export class ChatGPTTranslator implements MTEngine {
 
 
-    // Available Models (text completions only)
-    static readonly AVAILABLE_MODELS: [string, string][] = [
-        ['gpt-4o', 'gpt-4o'],
-        ['gpt-4', 'gpt-4'],
-        ['gpt-4-turbo', 'gpt-4-turbo'],
-        ['gpt-3.5-turbo', 'gpt-3.5-turbo'],
-        ['gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k'],
-        ['gpt-3.5-turbo-instruct', 'gpt-3.5-turbo-instruct'],
-        ['gpt-4-turbo-preview', 'gpt-4-turbo-preview'],
-        ['gpt-4o-mini', 'gpt-4o-mini'],
-        ['chatgpt-4o-latest', 'chatgpt-4o-latest']
-    ]
-
-    // Only keep constants for models in AVAILABLE_MODELS
-    static readonly GPT_4o: string = "gpt-4o";
-    static readonly GPT_4: string = "gpt-4";
-    static readonly GPT_4_TURBO: string = "gpt-4-turbo";
-    static readonly GPT_35_TURBO: string = "gpt-3.5-turbo";
-    static readonly GPT_35_TURBO_16K: string = "gpt-3.5-turbo-16k";
-    static readonly GPT_35_TURBO_INSTRUCT: string = "gpt-3.5-turbo-instruct";
-    static readonly GPT_4_TURBO_PREVIEW: string = "gpt-4-turbo-preview";
-    static readonly GPT_4O_MINI: string = "gpt-4o-mini";
-    static readonly CHATGPT_4O_LATEST: string = "chatgpt-4o-latest";
-
-
     openai: OpenAI;
     srcLang: string = '';
     tgtLang: string = '';
-    model: string = ChatGPTTranslator.GPT_4O_MINI; // Default model
+    model: string | undefined;
 
     constructor(apiKey: string, model?: string) {
         this.openai = new OpenAI({ apiKey: apiKey });
@@ -58,6 +33,10 @@ export class ChatGPTTranslator implements MTEngine {
 
     getName(): string {
         return 'ChatGPT API';
+    }
+
+    setModel(model: string): void {
+        this.model = model;
     }
 
     getShortName(): string {
@@ -89,13 +68,16 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     translate(source: string): Promise<string> {
+        if (!this.model) {
+            return Promise.reject(new Error('Model is not set.'));
+        }
         if (this.srcLang === '' || this.tgtLang === '') {
             return Promise.reject(new Error('Source and Target languages must be set before translation.'));
         }
         let propmt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
-                model: this.model,
+                model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
@@ -120,10 +102,13 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
+        if (!this.model) {
+            return Promise.reject(new Error('Model is not set.'));
+        }
         let propmt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
             this.openai.chat.completions.create({
-                model: this.model,
+                model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
@@ -158,24 +143,6 @@ export class ChatGPTTranslator implements MTEngine {
         return true;
     }
 
-    getModels(): string[] {
-        const models = [
-            ChatGPTTranslator.GPT_4o,
-            ChatGPTTranslator.GPT_4,
-            ChatGPTTranslator.GPT_4_TURBO,
-            ChatGPTTranslator.GPT_35_TURBO,
-            ChatGPTTranslator.GPT_35_TURBO_16K,
-            ChatGPTTranslator.GPT_35_TURBO_INSTRUCT,
-            ChatGPTTranslator.GPT_4_TURBO_PREVIEW,
-            ChatGPTTranslator.GPT_4O_MINI,
-            ChatGPTTranslator.CHATGPT_4O_LATEST
-        ];
-        models.sort((a: string, b: string) => {
-            return a.localeCompare(b, 'en');
-        });
-        return models;
-    }
-
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
         return new Promise<MTMatch>((resolve, reject) => {
             this.fixTranslation(originalSource, matchSource, matchTarget).then((translation: string) => {
@@ -188,10 +155,13 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     fixTranslation(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<string> {
+        if (!this.model) {
+            return Promise.reject(new Error('Model is not set.'));
+        }
         let propmt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
-                model: this.model,
+                model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
@@ -227,10 +197,13 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
+        if (!this.model) {
+            return Promise.reject(new Error('Model is not set.'));
+        }
         let propmt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
             this.openai.chat.completions.create({
-                model: this.model,
+                model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
                     { "role": "user", "content": propmt }
@@ -276,7 +249,7 @@ export class ChatGPTTranslator implements MTEngine {
         try {
             const response = await this.openai.models.list();
             return response.data.map((model: any) => [model.id, model.id]);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error fetching available models:', error);
             throw error;
         }
