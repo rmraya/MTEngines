@@ -106,7 +106,6 @@ export class ModernMTTranslator implements MTEngine {
                     } else {
                         reject(new Error(json.error.message));
                     }
-                    resolve(json.translations[0].text);
                 } else {
                     reject(new Error(response.statusText));
                 }
