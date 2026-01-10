@@ -22,8 +22,11 @@ export class MistralTranslator implements MTEngine {
     srcLang: string = '';
     tgtLang: string = '';
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string, model?: string) {
         this.apiKey = apiKey;
+        if (model) {
+            this.model = model;
+        }
     }
 
     setModel(model: string): void {

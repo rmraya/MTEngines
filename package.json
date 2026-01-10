@@ -1,7 +1,7 @@
 {
   "name": "mtengines",
   "productName": "MTEngines",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Machine Translation (MT) library written in TypeScript",
   "type": "module",
   "keywords": [
