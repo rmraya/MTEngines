@@ -16,6 +16,7 @@ export { ChatGPTTranslator } from './ChatGPTTranslator.js';
 export { Constants } from './Constants.js';
 export { DeepLTranslator } from './DeepLTranslator.js';
 export { GoogleTranslator } from './GoogleTranslator.js';
+export { MistralTranslator } from './MistralTranslator.js';
 export { ModernMTTranslator } from './ModernMTTranslator.js';
 export type { MTEngine } from './MTEngine.js';
 export { MTMatch } from './MTMatch.js';

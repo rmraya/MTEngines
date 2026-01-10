@@ -13,7 +13,8 @@
     "MT",
     "NMT",
     "Neural Machine Translation",
-    "ModernMT"
+    "ModernMT",
+    "Mistral"
   ],
   "scripts": {
     "build": "tsc"
@@ -41,14 +42,16 @@
     "type": "git",
     "url": "https://github.com/rmraya/MTEngines.git"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/node": "^24.10.4",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
-    "@mistralai/mistralai": "^1.11.0",
-    "openai": "^6.15.0",
+    "openai": "^6.16.0",
     "typesbcp47": "1.17.0",
     "typesxml": "1.17.0"
   }

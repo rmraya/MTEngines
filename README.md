@@ -22,7 +22,7 @@ Interface `MTEngine` provides these methods:
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 ```
 
-All supported engines implement the `MTEngine` interface. Methods `fixMatch()` and `fixTags()` are only implemented by AI-based engines (`ChatGPTTranslator` and `AnthropicTranslator`), all other engines throw an error when they are called.
+All supported engines implement the `MTEngine` interface. Methods `fixMatch()` and `fixTags()` are only implemented by AI-based engines (`ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator`), all other engines throw an error when they are called.
 
 ## Supported Engines
 
@@ -30,6 +30,7 @@ All supported engines implement the `MTEngine` interface. Methods `fixMatch()` a
 - DeepL (Free and Pro)
 - Google Cloud Translation
 - Microsoft Azure Translator Text
+- Mistral AI
 - ModernMT
 - OpenAI ChatGPT
 
@@ -38,6 +39,8 @@ All supported engines implement the `MTEngine` interface. Methods `fixMatch()` a
 ```bash
 npm install mtengines
 ```
+
+> **Note**: The library requires Node.js 22 or newer to ensure the built-in `fetch` API is available at runtime.
 
 ## Examples
 
@@ -61,7 +64,7 @@ class TestGoogle {
 new TestGoogle();
 ```
 
-`ChatGPTTranslator` and `AnthropicTranslator` need that you either indicate the model to use when creating the instance, or set the model to use by calling the `setModel()` method like in the following example:
+`ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator` need that you either indicate the model to use when creating the instance, or set the model to use by calling the `setModel()` method like in the following example:
 
 ```typescript
 import { ChatGPTTranslator } from "mtengines";
@@ -83,7 +86,7 @@ class TestChatGPT {
 new TestChatGPT();
 ```
 
-You can get a list of models supported by `ChatGPTTranslator` and `AnthropicTranslator` by calling the `getModels()` method:
+You can get a list of models supported by `ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator` by calling the `getAvailableModels()` method:
 
 ```typescript
 import { AnthropicTranslator } from "mtengines";

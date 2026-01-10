@@ -85,7 +85,7 @@ export class MTUtils {
         if (!targetLanguage) {
             throw new Error('Language not found for code: ' + tgtLang);
         }
-        let propmt: string = 'Your task is to translate an XLIFF 2.1 `<source>` XML element into a `<target>` XML element.\n\n' +
+        let prompt: string = 'Your task is to translate an XLIFF 2.1 `<source>` XML element into a `<target>` XML element.\n\n' +
             'Given the following `<source>` XML element:\n\n```xml\n' +
             source.toString() + '\n```\n\n' +
             'Translate the content of the `<source>` element from ' + sourceLanguage.description +
@@ -101,7 +101,7 @@ export class MTUtils {
             'Provide only the complete `<target>` XML element. Do not include any surrounding XML, additional commentary, or explanations.\n\n' +
             'Expected Output Format:\n\n```xml\n' +
             '<target xml:space="preserve"> ... </target>\n```';
-        return propmt;
+        return prompt;
     }
 
     static fixTagsPrompt(source: XMLElement, target: XMLElement, srcLang: string, tgtLang: string): string {

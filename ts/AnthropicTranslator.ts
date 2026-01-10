@@ -70,9 +70,9 @@ export class AnthropicTranslator implements MTEngine {
         if (this.srcLang === '' || this.tgtLang === '') {
             return Promise.reject(new Error('Source and Target languages must be set before translation.'));
         }
-        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
+        let prompt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
-            this.createMessage(propmt).then((message: Anthropic.Message) => {
+            this.createMessage(prompt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text.trim();
@@ -87,9 +87,9 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     getMTMatch(source: XMLElement, terms: { source: string, target: string }[]): Promise<MTMatch> {
-        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
+        let prompt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
-            this.createMessage(propmt).then((message: Anthropic.Message) => {
+            this.createMessage(prompt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text.trim();
@@ -131,9 +131,9 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     fixMatch(originalSource: XMLElement, matchSource: XMLElement, matchTarget: XMLElement): Promise<MTMatch> {
-        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
+        let prompt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<MTMatch>((resolve, reject) => {
-            this.createMessage(propmt).then((message: Anthropic.Message) => {
+            this.createMessage(prompt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text;
@@ -154,9 +154,9 @@ export class AnthropicTranslator implements MTEngine {
     }
 
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement> {
-        let propmt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
+        let prompt: string = MTUtils.getRole(this.srcLang, this.tgtLang) + ' ' + MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
-            this.createMessage(propmt).then((message: Anthropic.Message) => {
+            this.createMessage(prompt).then((message: Anthropic.Message) => {
                 let jsonString: string = JSON.stringify(message, null, 2);
                 let jsonObject: any = JSON.parse(jsonString);
                 let translation: string = jsonObject.content[0].text;
@@ -185,7 +185,7 @@ export class AnthropicTranslator implements MTEngine {
                 }
             });
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('HTTP error! status: ' + response.status);
             }
             const data: any = await response.json();
             return data.data.map((model: any) => [model.id, model.display_name]);

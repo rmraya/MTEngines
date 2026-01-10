@@ -74,13 +74,13 @@ export class ChatGPTTranslator implements MTEngine {
         if (this.srcLang === '' || this.tgtLang === '') {
             return Promise.reject(new Error('Source and Target languages must be set before translation.'));
         }
-        let propmt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
+        let prompt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": propmt }
+                    { "role": "user", "content": prompt }
                 ]
             }).then((completion: any) => {
                 let choices: any[] = completion.choices;
@@ -105,13 +105,13 @@ export class ChatGPTTranslator implements MTEngine {
         if (!this.model) {
             return Promise.reject(new Error('Model is not set.'));
         }
-        let propmt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
+        let prompt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": propmt }
+                    { "role": "user", "content": prompt }
                 ]
             }).then((completion: any) => {
                 let choices: any[] = completion.choices;
@@ -158,13 +158,13 @@ export class ChatGPTTranslator implements MTEngine {
         if (!this.model) {
             return Promise.reject(new Error('Model is not set.'));
         }
-        let propmt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
+        let prompt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<string>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": propmt }
+                    { "role": "user", "content": prompt }
                 ]
             }).then((completion: any) => {
                 let choices: any[] = completion.choices;
@@ -200,13 +200,13 @@ export class ChatGPTTranslator implements MTEngine {
         if (!this.model) {
             return Promise.reject(new Error('Model is not set.'));
         }
-        let propmt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
+        let prompt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
             this.openai.chat.completions.create({
                 model: this.model!,
                 messages: [
                     { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": propmt }
+                    { "role": "user", "content": prompt }
                 ]
             }).then((completion: any) => {
                 let choices: any[] = completion.choices;
