@@ -1,8 +1,9 @@
 {
   "name": "mtengines",
   "productName": "MTEngines",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Machine Translation (MT) library written in TypeScript",
+  "type": "module",
   "keywords": [
     "Machine Translation",
     "Google Translate",
@@ -15,9 +16,7 @@
     "ModernMT"
   ],
   "scripts": {
-    "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc --project tsconfig.cjs.json",
-    "build:esm": "tsc --project tsconfig.esm.json && node scripts/create-esm-package.cjs"
+    "build": "tsc"
   },
   "author": {
     "name": "Rodolfo M. Raya",
@@ -25,21 +24,18 @@
     "email": "rmraya@maxprograms.com"
   },
   "license": "EPL-1.0",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
-    "./package.json": "./package.json",
-    "./cjs/*": "./dist/cjs/*"
+    "./package.json": "./package.json"
   },
   "files": [
-    "/dist"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -53,7 +49,7 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@mistralai/mistralai": "^1.11.0",
     "openai": "^6.15.0",
-    "typesbcp47": "1.16.0",
+    "typesbcp47": "1.17.0",
     "typesxml": "1.17.0"
   }
 }
