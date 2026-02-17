@@ -10,6 +10,7 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
+export { AlibabaTranslator } from './AlibabaTranslator.js';
 export { AnthropicTranslator } from './AnthropicTranslator.js';
 export { AzureTranslator } from './AzureTranslator.js';
 export { ChatGPTTranslator } from './ChatGPTTranslator.js';

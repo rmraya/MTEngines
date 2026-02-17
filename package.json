@@ -1,7 +1,7 @@
 {
   "name": "mtengines",
   "productName": "MTEngines",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Machine Translation (MT) library written in TypeScript",
   "type": "module",
   "keywords": [
@@ -14,7 +14,8 @@
     "NMT",
     "Neural Machine Translation",
     "ModernMT",
-    "Mistral"
+    "Mistral",
+    "Alibaba"
   ],
   "scripts": {
     "build": "tsc"
@@ -50,9 +51,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.2",
-    "openai": "^6.16.0",
-    "typesbcp47": "1.17.0",
+    "@anthropic-ai/sdk": "^0.75.0",
+    "openai": "^6.22.0",
+    "typesbcp47": "1.18.0",
     "typesxml": "1.17.0"
   }
 }
