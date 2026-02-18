@@ -16,7 +16,7 @@ import { MTEngine } from "./MTEngine.js";
 import { MTMatch } from "./MTMatch.js";
 import { MTUtils } from "./MTUtils.js";
 
-export class AlibabaTranslator implements MTEngine {
+export class QwenTranslator implements MTEngine {
 
     openai: OpenAI;
     srcLang: string = '';
@@ -65,7 +65,7 @@ export class AlibabaTranslator implements MTEngine {
     }
 
     getName(): string {
-        return 'Alibaba Translator';
+        return 'Qwen Translator';
     }
 
     setModel(model: string): void {
@@ -73,7 +73,7 @@ export class AlibabaTranslator implements MTEngine {
     }
 
     getShortName(): string {
-        return 'Alibaba';
+        return 'Qwen';
     }
 
     getSourceLanguages(): Promise<string[]> {
