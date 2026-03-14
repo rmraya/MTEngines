@@ -51,9 +51,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.75.0",
-    "openai": "^6.22.0",
-    "typesbcp47": "1.18.0",
-    "typesxml": "1.17.0"
+    "@anthropic-ai/sdk": "^0.78.0",
+    "openai": "^6.29.0",
+    "typesbcp47": "1.18.1",
+    "typesxml": "1.18.0"
   }
 }

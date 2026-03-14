@@ -22,7 +22,7 @@ Interface `MTEngine` provides these methods:
     fixTags(source: XMLElement, target: XMLElement): Promise<XMLElement>;
 ```
 
-All supported engines implement the `MTEngine` interface. Methods `fixMatch()` and `fixTags()` are only implemented by AI-based engines (`QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator`), all other engines throw an error when they are called.
+All supported engines implement the `MTEngine` interface. Methods `fixMatch()` and `fixTags()` are only implemented by AI-based engines (`QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator`, `MistralTranslator` and `GeminiTranslator`), all other engines throw an error when they are called.
 
 ## Supported Engines
 
@@ -30,6 +30,7 @@ All supported engines implement the `MTEngine` interface. Methods `fixMatch()` a
 - Anthropic Claude
 - DeepL (Free and Pro)
 - Google Cloud Translation
+- Google Gemini
 - Microsoft Azure Translator Text
 - Mistral AI
 - ModernMT
@@ -65,7 +66,7 @@ class TestGoogle {
 new TestGoogle();
 ```
 
-`QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator` need that you either indicate the model to use when creating the instance, or set the model to use by calling the `setModel()` method like in the following example:
+`QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator`, `MistralTranslator` and `GeminiTranslator` need that you either indicate the model to use when creating the instance, or set the model to use by calling the `setModel()` method like in the following example:
 
 ```typescript
 import { ChatGPTTranslator } from "mtengines";
@@ -87,7 +88,7 @@ class TestChatGPT {
 new TestChatGPT();
 ```
 
-You can get a list of models supported by `QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator` and `MistralTranslator` by calling the `getAvailableModels()` method:
+You can get a list of models supported by `QwenTranslator`, `ChatGPTTranslator`, `AnthropicTranslator`, `MistralTranslator` and `GeminiTranslator` by calling the `getAvailableModels()` method:
 
 ```typescript
 import { AnthropicTranslator } from "mtengines";
@@ -124,4 +125,4 @@ Claude available models:
 ]
 ```
 
-*Note*: Only `QwenTranslator` has a set of preconfigured models that depend on the selected working `region`, for all other engines the list of available models is retrieved at runtime.
+*Note*: Only `QwenTranslator` has a set of preconfigured models that depend on the selected working `region`, for all other AI-based engines the list of available models is retrieved at runtime.
