@@ -138,7 +138,7 @@ export class MistralTranslator implements MTEngine {
                 if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
                 }
-                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                if (!translation.trim().startsWith('<target') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';
                 }
                 resolve(translation);
@@ -189,7 +189,7 @@ export class MistralTranslator implements MTEngine {
                 if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
                 }
-                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                if (!translation.trim().startsWith('<target') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';
                 }
 

@@ -128,7 +128,7 @@ export class ChatGPTTranslator implements MTEngine {
                 if (translation.startsWith('```') && translation.endsWith('```')) {
                     translation = translation.substring(3, translation.length - 3).trim();
                 }
-                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                if (!translation.trim().startsWith('<target') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';
                 }
                 let target: XMLElement = MTUtils.toXMLElement(translation);
@@ -178,7 +178,7 @@ export class ChatGPTTranslator implements MTEngine {
                 if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
                 }
-                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                if (!translation.trim().startsWith('<target') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';
                 }
                 resolve(translation);
@@ -220,7 +220,7 @@ export class ChatGPTTranslator implements MTEngine {
                 if (translation.startsWith('```xml') && translation.endsWith('```')) {
                     translation = translation.substring(6, translation.length - 3).trim();
                 }
-                if (!translation.trim().startsWith('<target>') && !translation.trim().endsWith('</target>')) {
+                if (!translation.trim().startsWith('<target') && !translation.trim().endsWith('</target>')) {
                     translation = '<target>' + translation + '</target>';
                 }
 
