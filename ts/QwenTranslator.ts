@@ -10,7 +10,6 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-import { OpenAI } from "openai";
 import { DOMBuilder, SAXParser, XMLDocument, XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine.js";
 import { MTMatch } from "./MTMatch.js";
@@ -18,7 +17,7 @@ import { MTUtils } from "./MTUtils.js";
 
 export class QwenTranslator implements MTEngine {
 
-    openai: OpenAI;
+    apiKey: string;
     srcLang: string = '';
     tgtLang: string = '';
     model: string | undefined;
@@ -52,14 +51,8 @@ export class QwenTranslator implements MTEngine {
     };
 
     constructor(apiKey: string, region: string, model?: string) {
+        this.apiKey = apiKey;
         this.currentRegion = region;
-        this.openai = new OpenAI(
-            {
-                apiKey: apiKey,
-                // The following is the base_url for the selected region.
-                baseURL: this.regions[region]
-            }
-        );
         if (model) {
             this.model = model;
         }
@@ -110,15 +103,26 @@ export class QwenTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "assistant", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch(this.regions[this.currentRegion] + '/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'assistant', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -141,15 +145,26 @@ export class QwenTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "assistant", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content.trim();
+            fetch(this.regions[this.currentRegion] + '/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'assistant', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content.trim();
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -194,15 +209,26 @@ export class QwenTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<string>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "assistant", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch(this.regions[this.currentRegion] + '/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'assistant', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -236,15 +262,26 @@ export class QwenTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "assistant", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch(this.regions[this.currentRegion] + '/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'assistant', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }

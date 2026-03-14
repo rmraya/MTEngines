@@ -10,7 +10,6 @@
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
 
-import { OpenAI } from "openai";
 import { DOMBuilder, SAXParser, XMLDocument, XMLElement } from "typesxml";
 import { MTEngine } from "./MTEngine.js";
 import { MTMatch } from "./MTMatch.js";
@@ -18,14 +17,13 @@ import { MTUtils } from "./MTUtils.js";
 
 export class ChatGPTTranslator implements MTEngine {
 
-
-    openai: OpenAI;
+    apiKey: string;
     srcLang: string = '';
     tgtLang: string = '';
     model: string | undefined;
 
     constructor(apiKey: string, model?: string) {
-        this.openai = new OpenAI({ apiKey: apiKey });
+        this.apiKey = apiKey;
         if (model) {
             this.model = model;
         }
@@ -76,15 +74,26 @@ export class ChatGPTTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.translatePropmt(source, this.srcLang, this.tgtLang);
         return new Promise<string>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'system', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -107,15 +116,26 @@ export class ChatGPTTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.generatePrompt(source, this.srcLang, this.tgtLang, terms);
         return new Promise<MTMatch>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content.trim();
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'system', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content.trim();
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -160,15 +180,26 @@ export class ChatGPTTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.fixMatchPrompt(originalSource, matchSource, matchTarget);
         return new Promise<string>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'system', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -202,15 +233,26 @@ export class ChatGPTTranslator implements MTEngine {
         }
         let prompt: string = MTUtils.fixTagsPrompt(source, target, this.srcLang, this.tgtLang);
         return new Promise<XMLElement>((resolve, reject) => {
-            this.openai.chat.completions.create({
-                model: this.model!,
-                messages: [
-                    { "role": "system", "content": MTUtils.getRole(this.srcLang, this.tgtLang) },
-                    { "role": "user", "content": prompt }
-                ]
-            }).then((completion: any) => {
-                let choices: any[] = completion.choices;
-                let translation: string = choices[0].message.content;
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey,
+                },
+                body: JSON.stringify({
+                    model: this.model,
+                    messages: [
+                        { role: 'system', content: MTUtils.getRole(this.srcLang, this.tgtLang) },
+                        { role: 'user', content: prompt }
+                    ]
+                }),
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            }).then((data: any) => {
+                let translation: string = data.choices[0].message.content;
                 if (translation.startsWith('\n\n')) {
                     translation = translation.substring(2);
                 }
@@ -246,12 +288,13 @@ export class ChatGPTTranslator implements MTEngine {
     }
 
     async getAvailableModels(): Promise<string[][]> {
-        try {
-            const response = await this.openai.models.list();
-            return response.data.map((model: any) => [model.id, model.id]);
-        } catch (error: unknown) {
-            console.error('Error fetching available models:', error);
-            throw error;
+        const response = await fetch('https://api.openai.com/v1/models', {
+            headers: { 'Authorization': 'Bearer ' + this.apiKey },
+        });
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
         }
+        const data: any = await response.json();
+        return data.data.map((model: any) => [model.id, model.id]);
     }
 }
