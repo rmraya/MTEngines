@@ -48,12 +48,12 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@types/node": "^24.10.4",
-    "typescript": "^5.9.3"
+    "@types/node": "^24.12.2",
+    "typescript": "^6.0.2"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.78.0",
-    "typesbcp47": "1.18.1",
-    "typesxml": "1.18.0"
+    "@anthropic-ai/sdk": "^0.88.0",
+    "typesbcp47": "1.19.1",
+    "typesxml": "1.19.0"
   }
 }
